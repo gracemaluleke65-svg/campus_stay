@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: campusstay
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: postgresql://bakerslovers:ymTgQWC57PTko8iD1Kg1iE9xQKfIyna5@dpg-d5r6faf5r7bs7390vel0-a.virginia-postgres.render.com/bakerslovers
+      - key: STRIPE_PUBLISHABLE_KEY
+        value: pk_test_51RCfdhC4ofBWBtBfsZMlapzUKBqk40bIESk3D1CBlCuE18KdF9rG8gmmjo1FoMwdR8pFit1Xhv2QSUNW8t1AH9R300T2mJ9WY4
+      - key: STRIPE_SECRET_KEY
+        value: sk_test_51RCfdhC4ofBWBtBf5YS6sIJNuqDpY5DnwHmPxXKFgxKzS3sZJjvd4r4ctRGT78Zq2Hmd2Cg26qft2uoNOdMXAm2o00eBqewKdw
+      - key: ADMIN_EMAIL
+        value: admin@campusstay.com
+      - key: ADMIN_PASSWORD
+        value: admin123
+      - key: FLASK_ENV
+        value: production
+      - key: DEBUG
+        value: false
+    autoDeploy: true
+    plan: free

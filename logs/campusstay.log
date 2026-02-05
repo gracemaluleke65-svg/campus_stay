@@ -1,0 +1,11 @@
+2026-02-05 18:52:53,982 INFO: CampusStay startup [in S:\Deploy\campus_stay\app.py:34]
+2026-02-05 18:53:03,253 ERROR: Database initialization error: (psycopg2.errors.UndefinedColumn) column user.full_name does not exist
+LINE 1: SELECT "user".id AS user_id, "user".full_name AS user_full_n...
+                                     ^
+
+[SQL: SELECT "user".id AS user_id, "user".full_name AS user_full_name, "user".email AS user_email, "user".student_number AS user_student_number, "user".id_number AS user_id_number, "user".phone AS user_phone, "user".password_hash AS user_password_hash, "user".is_admin AS user_is_admin, "user".created_at AS user_created_at 
+FROM "user" 
+WHERE "user".email = %(email_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'email_1': 'admin@campusstay.com', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405) [in S:\Deploy\campus_stay\app.py:721]

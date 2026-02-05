@@ -1,0 +1,556 @@
+{% extends "base.html" %}
+
+{% block title %}My Favorites - Saved Properties{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, #FFF5F2 0%, #FFFFFF 100%);
+        padding: 4rem 0 3rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-subtitle {
+        color: var(--gray-text);
+        font-size: 1.125rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Favorites Grid */
+    .favorites-section {
+        padding: 0 0 6rem;
+        min-height: 60vh;
+    }
+
+    /* Property Card - Enhanced from index style */
+    .favorite-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .card-image-wrapper {
+        position: relative;
+        height: 240px;
+        overflow: hidden;
+    }
+
+    .card-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .favorite-card:hover .card-image-wrapper img {
+        transform: scale(1.05);
+    }
+
+    /* Badges */
+    .spots-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        color: var(--dark-text);
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        z-index: 2;
+    }
+
+    .spots-badge.available {
+        background: rgba(16, 185, 129, 0.95);
+        color: white;
+    }
+
+    .spots-badge.limited {
+        background: rgba(245, 158, 11, 0.95);
+        color: white;
+    }
+
+    .spots-badge.full {
+        background: rgba(239, 68, 68, 0.95);
+        color: white;
+    }
+
+    .spots-badge i {
+        font-size: 0.875rem;
+    }
+
+    /* Remove Favorite Button */
+    .remove-favorite-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
+        z-index: 2;
+        color: #EF4444;
+    }
+
+    .remove-favorite-btn:hover {
+        background: #EF4444;
+        color: white;
+        transform: scale(1.1) rotate(90deg);
+    }
+
+    .remove-favorite-btn i {
+        font-size: 1.25rem;
+    }
+
+    /* Card Content */
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .card-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        line-height: 1.4;
+        margin: 0;
+        flex: 1;
+    }
+
+    .rating-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        background: rgba(255, 182, 39, 0.15);
+        padding: 0.375rem 0.75rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: #B45309;
+        white-space: nowrap;
+    }
+
+    .rating-badge i {
+        color: var(--accent-yellow);
+        font-size: 0.75rem;
+    }
+
+    .location-text {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .location-text i {
+        color: var(--primary-orange);
+    }
+
+    /* Room Type & Price Row */
+    .type-price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .room-type-badge {
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        padding: 0.375rem 0.875rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .price-tag {
+        text-align: right;
+    }
+
+    .price-amount {
+        font-size: 1.375rem;
+        font-weight: 800;
+        color: var(--primary-orange);
+        line-height: 1;
+    }
+
+    .price-period {
+        font-size: 0.75rem;
+        color: var(--gray-text);
+        font-weight: 500;
+    }
+
+    /* Amenities */
+    .amenities-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .amenity-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--gray-text);
+        font-size: 0.8125rem;
+        background: var(--light-bg);
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+    }
+
+    .amenity-item i {
+        color: var(--primary-orange);
+        font-size: 0.875rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-book {
+        flex: 1;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-book:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+        color: white;
+    }
+
+    .btn-view {
+        flex: 1;
+        background: transparent;
+        color: var(--primary-orange);
+        border: 2px solid var(--primary-orange);
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-view:hover {
+        background: var(--primary-orange);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 6rem 2rem;
+        background: white;
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .empty-icon {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 107, 53, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .empty-icon i {
+        font-size: 3rem;
+        color: var(--primary-orange);
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-text {
+        color: var(--gray-text);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .card-image-wrapper {
+            height: 200px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .card-header-row {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .rating-badge {
+            align-self: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="page-title">
+                    <i class="bi bi-heart-fill text-danger me-3"></i>My Favorites
+                </h1>
+                <p class="page-subtitle">
+                    {% if accommodations|length > 0 %}
+                        You have {{ accommodations|length }} saved propert{{ 'y' if accommodations|length == 1 else 'ies' }}
+                    {% else %}
+                        Save your favorite accommodations to compare and book later
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="{{ url_for('accommodations') }}" class="btn btn-outline-orange">
+                    <i class="bi bi-search me-2"></i>Browse More
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Favorites Grid -->
+<section class="favorites-section">
+    <div class="container">
+        {% if accommodations %}
+        <div class="row g-4">
+            {% for acc in accommodations %}
+            <div class="col-lg-4 col-md-6">
+                <div class="favorite-card" id="favorite-card-{{ acc.id }}">
+                    <div class="card-image-wrapper">
+                        <img src="{{ url_for('static', filename='uploads/' + acc.image_filename) if acc.image_filename else 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" 
+                             alt="{{ acc.title }}">
+                        
+                        {% set spots = acc.available_spots() %}
+                        {% if spots == 0 %}
+                            <div class="spots-badge full">
+                                <i class="bi bi-x-circle"></i> Fully Booked
+                            </div>
+                        {% elif spots <= 2 %}
+                            <div class="spots-badge limited">
+                                <i class="bi bi-exclamation-triangle"></i> Only {{ spots }} left
+                            </div>
+                        {% else %}
+                            <div class="spots-badge available">
+                                <i class="bi bi-check-circle"></i> {{ spots }} spots available
+                            </div>
+                        {% endif %}
+                        
+                        <button class="remove-favorite-btn" onclick="removeFavorite({{ acc.id }})" title="Remove from favorites">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="card-content">
+                        <div class="card-header-row">
+                            <h3 class="card-title">{{ acc.title }}</h3>
+                            <div class="rating-badge">
+                                <i class="bi bi-star-fill"></i>
+                                {{ "%.1f"|format(acc.average_rating()) }}
+                            </div>
+                        </div>
+                        
+                        <div class="location-text">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            {{ acc.location }}
+                        </div>
+                        
+                        <div class="type-price-row">
+                            <span class="room-type-badge">{{ acc.room_type.title() }}</span>
+                            <div class="price-tag">
+                                <div class="price-amount">R {{ "%.0f"|format(acc.price_per_month) }}</div>
+                                <div class="price-period">per month</div>
+                            </div>
+                        </div>
+                        
+                        <div class="amenities-row">
+                            {% for amenity in acc.get_amenities_list()[:4] %}
+                            <span class="amenity-item">
+                                <i class="bi {{ get_amenity_icon(amenity) }}"></i>
+                                {{ amenity.replace('_', ' ').title() }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="action-buttons">
+                            {% if not acc.is_full() %}
+                            <a href="{{ url_for('accommodation_detail', id=acc.id) }}#booking" class="btn-book">
+                                <i class="bi bi-calendar-check"></i>Book Now
+                            </a>
+                            {% else %}
+                            <button class="btn-book" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                <i class="bi bi-x-circle"></i>Fully Booked
+                            </button>
+                            {% endif %}
+                            <a href="{{ url_for('accommodation_detail', id=acc.id) }}" class="btn-view">
+                                <i class="bi bi-eye"></i>Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-heart"></i>
+            </div>
+            <h3 class="empty-title">No Favorites Yet</h3>
+            <p class="empty-text">Start browsing and save accommodations you like to view them here anytime.</p>
+            <a href="{{ url_for('accommodations') }}" class="btn btn-primary-orange btn-lg">
+                <i class="bi bi-search me-2"></i>Browse Accommodations
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Remove favorite with animation
+    async function removeFavorite(accId) {
+        if (!confirm('Remove this property from your favorites?')) return;
+        
+        try {
+            const response = await fetch(`/favorite/toggle/${accId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'removed') {
+                // Animate card removal
+                const card = document.getElementById(`favorite-card-${accId}`);
+                card.style.transform = 'scale(0.9) opacity(0)';
+                card.style.transition = 'all 0.3s ease';
+                
+                setTimeout(() => {
+                    card.style.height = card.offsetHeight + 'px';
+                    card.style.margin = '0';
+                    card.innerHTML = '';
+                    
+                    setTimeout(() => {
+                        card.remove();
+                        
+                        // Check if empty
+                        const remaining = document.querySelectorAll('.favorite-card');
+                        if (remaining.length === 0) {
+                            location.reload(); // Reload to show empty state
+                        } else {
+                            showToast('Removed from favorites', 'info');
+                        }
+                    }, 300);
+                }, 300);
+            }
+        } catch (error) {
+            showToast('Error removing favorite', 'danger');
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Successful - Booking Confirmed{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-page {
+        min-height: calc(100vh - 76px);
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 50%, #FFF5F2 100%);
+        padding: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .success-page::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        right: -5%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .success-page::after {
+        content: '';
+        position: absolute;
+        bottom: -10%;
+        left: -5%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255, 107, 53, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .success-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 
+            0 20px 60px -15px rgba(0, 0, 0, 0.1),
+            0 0 0 1px rgba(0, 0, 0, 0.02);
+        padding: 4rem 3rem;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+        animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .success-icon-wrapper {
+        width: 120px;
+        height: 120px;
+        background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        box-shadow: 
+            0 20px 40px -10px rgba(34, 197, 94, 0.4),
+            0 0 0 20px rgba(34, 197, 94, 0.1);
+        animation: scaleIn 0.5s ease 0.2s both;
+        position: relative;
+    }
+
+    @keyframes scaleIn {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .success-icon-wrapper i {
+        font-size: 3.5rem;
+        color: white;
+        animation: checkmark 0.4s ease 0.6s both;
+    }
+
+    @keyframes checkmark {
+        0% {
+            transform: scale(0) rotate(-45deg);
+        }
+        100% {
+            transform: scale(1) rotate(0);
+        }
+    }
+
+    .success-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(34, 197, 94, 0.1);
+        color: #16A34A;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        animation: fadeIn 0.5s ease 0.4s both;
+    }
+
+    .success-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin-bottom: 1rem;
+        animation: fadeIn 0.5s ease 0.5s both;
+    }
+
+    .success-message {
+        font-size: 1.25rem;
+        color: var(--gray-text);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+        animation: fadeIn 0.5s ease 0.6s both;
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(255, 107, 53, 0.02) 100%);
+        border: 2px dashed rgba(255, 107, 53, 0.3);
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        animation: fadeIn 0.5s ease 0.7s both;
+    }
+
+    .info-box i {
+        font-size: 2rem;
+        color: var(--primary-orange);
+        margin-bottom: 0.75rem;
+    }
+
+    .info-box p {
+        color: var(--dark-text);
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .success-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2.5rem;
+        animation: fadeIn 0.5s ease 0.8s both;
+    }
+
+    .btn-success-primary {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-success-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(255, 107, 53, 0.4);
+        color: white;
+    }
+
+    .btn-success-secondary {
+        background: white;
+        color: var(--dark-text);
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        padding: 1rem 2rem;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success-secondary:hover {
+        border-color: var(--primary-orange);
+        color: var(--primary-orange);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .confetti {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: var(--primary-orange);
+        position: absolute;
+        animation: confetti-fall 3s ease-out forwards;
+    }
+
+    @keyframes confetti-fall {
+        0% {
+            transform: translateY(-100px) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+        }
+    }
+
+    .booking-details {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        animation: fadeIn 0.5s ease 0.7s both;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-value {
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    @media (max-width: 768px) {
+        .success-card {
+            padding: 2.5rem 1.5rem;
+            margin: 1rem;
+        }
+
+        .success-title {
+            font-size: 1.875rem;
+        }
+
+        .success-icon-wrapper {
+            width: 100px;
+            height: 100px;
+        }
+
+        .success-actions {
+            flex-direction: column;
+        }
+
+        .btn-success-primary,
+        .btn-success-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="success-card">
+                    <!-- Success Icon -->
+                    <div class="success-icon-wrapper">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    
+                    <!-- Badge -->
+                    <div class="success-badge">
+                        <i class="bi bi-shield-check"></i>
+                        Booking Confirmed
+                    </div>
+                    
+                    <!-- Title -->
+                    <h1 class="success-title">Payment Successful!</h1>
+                    
+                    <!-- Message -->
+                    <p class="success-message">
+                        Congratulations! Your booking has been confirmed and we've sent a confirmation email to your inbox.
+                    </p>
+                    
+                    <!-- Info Box -->
+                    <div class="info-box">
+                        <i class="bi bi-star-fill"></i>
+                        <p>Share your experience! You can now leave a review for your accommodation.</p>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="success-actions">
+                        <a href="{{ url_for('accommodation_detail', id=accommodation_id) }}" class="btn-success-primary">
+                            <i class="bi bi-star-fill"></i>
+                            Leave a Review
+                        </a>
+                        <a href="{{ url_for('my_bookings') }}" class="btn-success-secondary">
+                            <i class="bi bi-calendar-check"></i>
+                            View My Bookings
+                        </a>
+                    </div>
+                    
+                    <!-- Trust Indicators -->
+                    <div class="mt-4 pt-4 border-top">
+                        <div class="row text-center g-3">
+                            <div class="col-4">
+                                <i class="bi bi-shield-check text-success fs-4"></i>
+                                <p class="small text-muted mb-0 mt-1">Secure</p>
+                            </div>
+                            <div class="col-4">
+                                <i class="bi bi-envelope-check text-primary-orange fs-4"></i>
+                                <p class="small text-muted mb-0 mt-1">Email Sent</p>
+                            </div>
+                            <div class="col-4">
+                                <i class="bi bi-headset text-primary-orange fs-4"></i>
+                                <p class="small text-muted mb-0 mt-1">24/7 Support</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Help Text -->
+                <p class="text-center text-muted mt-4 small">
+                    Having issues? <a href="#" class="text-primary-orange fw-semibold">Contact our support team</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Create confetti effect
+    function createConfetti() {
+        const colors = ['#FF6B35', '#22C55E', '#FFB627', '#004E89', '#E85A2B'];
+        
+        for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                document.querySelector('.success-page').appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 4000);
+            }, i * 50);
+        }
+    }
+
+    // Trigger confetti on page load
+    document.addEventListener('DOMContentLoaded', createConfetti);
+    
+    // Show success toast
+    showToast('Payment completed successfully!', 'success');
+</script>
+{% endblock %}

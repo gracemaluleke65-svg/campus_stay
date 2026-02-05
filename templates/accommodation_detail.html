@@ -1,0 +1,1029 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accommodation.title }} - {{ accommodation.location }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Detail Page Styles */
+    .detail-hero {
+        background: linear-gradient(135deg, #FFF5F2 0%, #FFFFFF 100%);
+        padding: 2rem 0 4rem;
+    }
+
+    .breadcrumb-wrapper {
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--gray-text);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-orange);
+    }
+
+    .breadcrumb-item.active {
+        color: var(--dark-text);
+        font-weight: 600;
+    }
+
+    /* Image Gallery */
+    .image-gallery {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+    }
+
+    .main-image {
+        width: 100%;
+        height: 500px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .image-gallery:hover .main-image {
+        transform: scale(1.02);
+    }
+
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.4));
+        pointer-events: none;
+    }
+
+    .gallery-badge {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.5rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 0.75rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 700;
+        color: var(--primary-orange);
+        box-shadow: var(--shadow);
+    }
+
+    .gallery-actions {
+        position: absolute;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .action-btn {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
+        font-size: 1.25rem;
+        color: var(--dark-text);
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px) scale(1.1);
+        background: white;
+    }
+
+    .action-btn.active {
+        background: #FEE2E2;
+        color: #EF4444;
+    }
+
+    .action-btn.active i {
+        fill: #EF4444;
+    }
+
+    /* Property Header */
+    .property-header {
+        margin-bottom: 2rem;
+    }
+
+    .property-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
+    }
+
+    .property-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray-text);
+        font-weight: 500;
+    }
+
+    .meta-item i {
+        color: var(--primary-orange);
+        font-size: 1.125rem;
+    }
+
+    .rating-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 182, 39, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        color: var(--accent-yellow);
+    }
+
+    .rating-badge i {
+        color: var(--accent-yellow);
+    }
+
+    /* Price Card */
+    .price-card {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border-radius: 24px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 40px rgba(255, 107, 53, 0.3);
+    }
+
+    .price-label {
+        font-size: 0.875rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .price-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .price-period {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .availability-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        margin-top: 1rem;
+        font-weight: 600;
+    }
+
+    .spots-left {
+        background: white;
+        color: var(--primary-orange);
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 700;
+    }
+
+    /* Content Cards */
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .content-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .content-card h3 i {
+        color: var(--primary-orange);
+        font-size: 1.5rem;
+    }
+
+    .description-text {
+        color: var(--gray-text);
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    /* Amenities Grid */
+    .amenities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .amenity-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background: var(--light-bg);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .amenity-item:hover {
+        background: rgba(255, 107, 53, 0.1);
+        transform: translateX(5px);
+    }
+
+    .amenity-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-orange);
+        font-size: 1.25rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .amenity-text {
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    /* Booking Section */
+    .booking-section {
+        position: sticky;
+        top: 100px;
+    }
+
+    .booking-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .booking-header {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+    }
+
+    .booking-header h4 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .booking-body {
+        padding: 2rem;
+    }
+
+    .user-info-box {
+        background: var(--light-bg);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .user-info-box h6 {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--gray-text);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .info-item label {
+        font-size: 0.75rem;
+        color: var(--gray-text);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .info-item p {
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-select {
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus {
+        border-color: var(--primary-orange);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    }
+
+    .price-breakdown {
+        background: linear-gradient(135deg, #F0F7FF 0%, #E0F2FE 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+    }
+
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .price-row.total {
+        border-top: 2px solid rgba(0, 0, 0, 0.1);
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+    .price-row.total .price {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--primary-orange);
+    }
+
+    .btn-book {
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border: none;
+        color: white;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-book:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        color: white;
+    }
+
+    .secure-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        color: var(--gray-text);
+        font-size: 0.875rem;
+    }
+
+    .secure-badge i {
+        color: #10B981;
+    }
+
+    /* Review Section */
+    .reviews-section {
+        margin-top: 4rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .review-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .review-card:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .reviewer-avatar {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .reviewer-details h6 {
+        margin: 0;
+        font-weight: 700;
+        color: var(--dark-text);
+    }
+
+    .review-date {
+        font-size: 0.875rem;
+        color: var(--gray-text);
+    }
+
+    .review-rating {
+        color: var(--accent-yellow);
+    }
+
+    .review-content {
+        color: var(--gray-text);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .empty-reviews {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--light-bg);
+        border-radius: 24px;
+    }
+
+    .empty-reviews i {
+        font-size: 4rem;
+        color: var(--primary-orange);
+        opacity: 0.3;
+        margin-bottom: 1rem;
+    }
+
+    /* Review Form */
+    .review-form-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: var(--shadow-xl);
+        overflow: hidden;
+        margin-bottom: 3rem;
+        border: 2px solid #10B981;
+    }
+
+    .review-form-header {
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+    }
+
+    .review-form-header h4 {
+        margin: 0;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .review-form-body {
+        padding: 2rem;
+    }
+
+    .form-control {
+        border: 2px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-orange);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    }
+
+    .btn-submit-review {
+        width: 100%;
+        background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+        border: none;
+        color: white;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-submit-review:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+        color: white;
+    }
+
+    /* Login Prompt */
+    .login-prompt {
+        background: linear-gradient(135deg, #F0F7FF 0%, #E0F2FE 100%);
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .login-prompt i {
+        font-size: 3rem;
+        color: var(--primary-orange);
+        margin-bottom: 1rem;
+    }
+
+    .login-prompt h4 {
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-prompt p {
+        color: var(--gray-text);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .main-image {
+            height: 400px;
+        }
+
+        .property-title {
+            font-size: 1.875rem;
+        }
+
+        .booking-section {
+            position: relative;
+            top: 0;
+            margin-top: 3rem;
+        }
+
+        .amenities-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-image {
+            height: 300px;
+        }
+
+        .property-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .content-card {
+            padding: 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .gallery-actions {
+            bottom: 1rem;
+            right: 1rem;
+        }
+
+        .action-btn {
+            width: 44px;
+            height: 44px;
+            font-size: 1.1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-hero">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('accommodations') }}">Accommodations</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ accommodation.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5">
+            <!-- Left Column: Images & Details -->
+            <div class="col-lg-8">
+                <!-- Image Gallery -->
+                <div class="image-gallery mb-4">
+                    <img src="{{ url_for('static', filename='uploads/' + accommodation.image_filename) if accommodation.image_filename else 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80' }}" 
+                         class="main-image" alt="{{ accommodation.title }}">
+                    <div class="image-overlay"></div>
+                    <div class="gallery-badge">
+                        <i class="bi bi-geo-alt-fill me-1"></i>
+                        {{ accommodation.location }}
+                    </div>
+                    <div class="gallery-actions">
+                        {% if current_user.is_authenticated %}
+                        <button class="action-btn {{ 'active' if is_favorite }}" onclick="toggleFavoriteDetail({{ accommodation.id }}, this)" title="Add to favorites">
+                            <i class="bi bi-heart{{ '-fill' if is_favorite else '' }}"></i>
+                        </button>
+                        {% endif %}
+                        <button class="action-btn" onclick="shareProperty()" title="Share">
+                            <i class="bi bi-share"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Property Header -->
+                <div class="property-header">
+                    <h1 class="property-title">{{ accommodation.title }}</h1>
+                    <div class="property-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>{{ accommodation.location }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-door-closed-fill"></i>
+                            <span>{{ accommodation.room_type|title }} Room</span>
+                        </div>
+                        <div class="rating-badge">
+                            <i class="bi bi-star-fill"></i>
+                            {{ "%.1f"|format(accommodation.average_rating()) }}
+                            <small>({{ accommodation.reviews|length }} reviews)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price Card (Mobile Only) -->
+                <div class="price-card d-lg-none">
+                    <div class="price-label">Price per month</div>
+                    <div class="price-value">R {{ "%.0f"|format(accommodation.price_per_month) }}</div>
+                    <div class="price-period">ZAR / month</div>
+                    <div class="availability-status">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>{{ accommodation.available_spots() }} spots available</span>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="content-card">
+                    <h3><i class="bi bi-file-text"></i>About this place</h3>
+                    <p class="description-text">
+                        {{ accommodation.description or 'No description available for this accommodation. Contact the administrator for more details.' }}
+                    </p>
+                </div>
+
+                <!-- Amenities -->
+                <div class="content-card">
+                    <h3><i class="bi bi-stars"></i>Amenities</h3>
+                    {% if accommodation.get_amenities_list() %}
+                    <div class="amenities-grid">
+                        {% for amenity in accommodation.get_amenities_list() %}
+                        <div class="amenity-item">
+                            <div class="amenity-icon">
+                                <i class="bi {{ get_amenity_icon(amenity) }}"></i>
+                            </div>
+                            <span class="amenity-text">{{ amenity|replace('_', ' ')|title }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No amenities listed for this property.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Reviews Section -->
+                <div class="reviews-section">
+                    <div class="section-header">
+                        <h3 style="margin: 0;"><i class="bi bi-chat-square-text" style="color: var(--primary-orange);"></i> Reviews</h3>
+                        {% if accommodation.reviews %}
+                        <span class="badge bg-light text-dark border">{{ accommodation.reviews|length }} reviews</span>
+                        {% endif %}
+                    </div>
+
+                    {% if accommodation.reviews %}
+                        {% for review in accommodation.reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <div class="reviewer-avatar">
+                                        {{ review.user.full_name[0] }}
+                                    </div>
+                                    <div class="reviewer-details">
+                                        <h6>{{ review.user.full_name }}</h6>
+                                        <div class="review-rating">
+                                            {% for i in range(review.rating) %}
+                                                <i class="bi bi-star-fill"></i>
+                                            {% endfor %}
+                                            {% for i in range(5 - review.rating) %}
+                                                <i class="bi bi-star"></i>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="review-date">{{ review.created_at.strftime('%d %b %Y') }}</span>
+                            </div>
+                            <p class="review-content">{{ review.comment or 'No comment provided.' }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="empty-reviews">
+                        <i class="bi bi-chat-square-text"></i>
+                        <h4>No reviews yet</h4>
+                        <p>Be the first to review this accommodation!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column: Booking & Actions -->
+            <div class="col-lg-4">
+                <div class="booking-section">
+                    <!-- Price Card (Desktop) -->
+                    <div class="price-card d-none d-lg-block">
+                        <div class="price-label">Price per month</div>
+                        <div class="price-value">R {{ "%.0f"|format(accommodation.price_per_month) }}</div>
+                        <div class="price-period">ZAR / month • Cancel anytime</div>
+                        <div class="availability-status">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span class="spots-left">{{ accommodation.available_spots() }} spots left</span>
+                        </div>
+                    </div>
+
+                    {% if current_user.is_authenticated %}
+                    <!-- Booking Form -->
+                    <div class="booking-card">
+                        <div class="booking-header">
+                            <h4><i class="bi bi-calendar-check"></i>Book Now</h4>
+                        </div>
+                        <div class="booking-body">
+                            <!-- User Info -->
+                            <div class="user-info-box">
+                                <h6>Your Information</h6>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <label>Full Name</label>
+                                        <p>{{ current_user.full_name }}</p>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Email</label>
+                                        <p>{{ current_user.email }}</p>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Student No</label>
+                                        <p>{{ current_user.student_number }}</p>
+                                    </div>
+                                    <div class="info-item">
+                                        <label>Phone</label>
+                                        <p>{{ current_user.phone }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form method="POST" action="{{ url_for('book', accommodation_id=accommodation.id) }}">
+                                {{ booking_form.hidden_tag() }}
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Duration</label>
+                                    {{ booking_form.duration(class="form-select", onchange="updatePrice(this.value)") }}
+                                </div>
+                                
+                                <div class="price-breakdown">
+                                    <div class="price-row">
+                                        <span>Monthly Rate</span>
+                                        <span>R {{ "%.2f"|format(accommodation.price_per_month) }}</span>
+                                    </div>
+                                    <div class="price-row">
+                                        <span>Duration</span>
+                                        <span id="durationLabel">5 months</span>
+                                    </div>
+                                    <div class="price-row total">
+                                        <span>Total</span>
+                                        <span class="price">R <span id="totalPrice">{{ "%.2f"|format(accommodation.price_per_month * 5) }}</span></span>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn-book">
+                                    <i class="bi bi-lock-fill me-2"></i>Proceed to Payment
+                                </button>
+                                <div class="secure-badge">
+                                    <i class="bi bi-shield-check"></i>
+                                    Secure SSL Encryption
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Review Form -->
+                    {% if can_review %}
+                    <div class="review-form-card mt-4">
+                        <div class="review-form-header">
+                            <h4><i class="bi bi-pencil-square"></i>Write a Review</h4>
+                        </div>
+                        <div class="review-form-body">
+                            <form method="POST" action="{{ url_for('submit_review', accommodation_id=accommodation.id) }}">
+                                {{ review_form.hidden_tag() }}
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Rating</label>
+                                    {{ review_form.rating(class="form-select") }}
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Your Experience</label>
+                                    {{ review_form.comment(class="form-control", rows="4", placeholder="Share your thoughts about this accommodation...") }}
+                                </div>
+                                
+                                <button type="submit" class="btn-submit-review">
+                                    <i class="bi bi-send-fill me-2"></i>Submit Review
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% elif existing_review %}
+                    <div class="content-card mt-4" style="background: #F0FDF4; border-color: #10B981;">
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-check-circle-fill text-success fs-2"></i>
+                            <div>
+                                <h5 class="mb-1 text-success">Review Submitted!</h5>
+                                <p class="mb-0 text-muted">You've already reviewed this accommodation.</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% else %}
+                    <!-- Login Prompt -->
+                    <div class="login-prompt">
+                        <i class="bi bi-lock"></i>
+                        <h4>Login to Book</h4>
+                        <p>Please sign in to make a booking or leave a review</p>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('login') }}" class="btn btn-primary-orange">Login</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-orange">Create Account</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update price based on duration
+    function updatePrice(duration) {
+        const pricePerMonth = {{ accommodation.price_per_month }};
+        const totalElement = document.getElementById('totalPrice');
+        const durationLabel = document.getElementById('durationLabel');
+        const durationText = document.getElementById('durationText');
+        
+        let months, label;
+        
+        if (duration === 'annual') {
+            months = 10;
+            label = '10 months (Annual)';
+        } else {
+            months = 5;
+            label = '5 months (Semester)';
+        }
+        
+        const total = pricePerMonth * months;
+        totalElement.textContent = total.toFixed(2);
+        durationLabel.textContent = label;
+        
+        // Animation effect
+        totalElement.style.transform = 'scale(1.2)';
+        totalElement.style.color = 'var(--primary-orange)';
+        setTimeout(() => {
+            totalElement.style.transform = 'scale(1)';
+            totalElement.style.color = '';
+        }, 200);
+    }
+
+    // Toggle favorite
+    async function toggleFavoriteDetail(accommodationId, btn) {
+        try {
+            const response = await fetch(`/favorite/toggle/${accommodationId}`, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            const icon = btn.querySelector('i');
+            
+            if (data.status === 'added') {
+                btn.classList.add('active');
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+                showToast('Added to favorites!', 'success');
+            } else {
+                btn.classList.remove('active');
+                icon.classList.remove('bi-heart-fill');
+                icon.classList.add('bi-heart');
+                showToast('Removed from favorites', 'info');
+            }
+            
+            // Animation
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 200);
+            
+        } catch (error) {
+            showToast('Error updating favorites', 'danger');
+        }
+    }
+
+    // Share property
+    function shareProperty() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ accommodation.title }}',
+                text: 'Check out this accommodation on CampusStay!',
+                url: window.location.href
+            });
+        } else {
+            // Fallback - copy to clipboard
+            navigator.clipboard.writeText(window.location.href);
+            showToast('Link copied to clipboard!', 'success');
+        }
+    }
+
+    // Smooth scroll to review section if hash present
+    if (window.location.hash === '#review-section') {
+        document.getElementById('review-section')?.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+{% endblock %}

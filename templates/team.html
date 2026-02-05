@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+{% block title %}Meet Our Team - CampusStay{% endblock %}
+
+{% block extra_css %}
+<style>
+    .team-page {
+        padding: 6rem 0;
+        background: var(--light-bg);
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .page-title {
+        font-size: 3rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin-bottom: 1rem;
+    }
+
+    .page-subtitle {
+        color: var(--gray-text);
+        font-size: 1.25rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .team-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        height: 100%;
+    }
+
+    .team-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .team-card-img {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        margin: 0 auto 1.5rem;
+    }
+
+    .team-card-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .team-card-role {
+        display: inline-block;
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        padding: 0.375rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .team-card-desc {
+        color: var(--gray-text);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .team-card-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .team-card-link {
+        width: 40px;
+        height: 40px;
+        background: var(--light-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-text);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .team-card-link:hover {
+        background: var(--primary-orange);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .team-values {
+        background: white;
+        border-radius: 24px;
+        padding: 4rem;
+        margin-top: 4rem;
+        box-shadow: var(--shadow);
+    }
+
+    .values-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .values-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .value-item {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 16px;
+        background: var(--light-bg);
+        transition: all 0.3s ease;
+    }
+
+    .value-item:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow);
+    }
+
+    .value-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin: 0 auto 1.5rem;
+    }
+
+    .value-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .value-description {
+        color: var(--gray-text);
+        line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 2.5rem;
+        }
+
+        .team-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .team-values {
+            padding: 2rem;
+        }
+
+        .values-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .team-page {
+            padding: 4rem 0;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .team-card-img {
+            width: 150px;
+            height: 150px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Team Page -->
+<section class="team-page">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Meet Our Team</h1>
+            <p class="page-subtitle">The dedicated professionals working together to make CampusStay the best student accommodation platform</p>
+        </div>
+
+        <!-- Team Grid -->
+        <div class="team-grid">
+            <!-- Shichabo Nkuna -->
+            <div class="team-card">
+                <img src="{{ url_for('static', filename='images/team/Shichabo.png') }}" 
+                     alt="Shichabo Nkuna" 
+                     class="team-card-img">
+                <h3 class="team-card-name">Shichabo Nkuna</h3>
+                <span class="team-card-role">Software Developer</span>
+                <p class="team-card-desc">
+                    Experienced full-stack developer with expertise in modern web technologies. 
+                    Developed 15+ full-stack projects focusing on scalability, performance, 
+                    and user experience.
+                </p>
+                <div class="team-card-links">
+                    <a href="https://shichabonkuna22-star.github.io/portfolio/" class="team-card-link" target="_blank" title="Portfolio">
+                        <i class="bi bi-globe"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/shichabo-nkuna-7004a2244" class="team-card-link" target="_blank" title="LinkedIn">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Ntsakelo Ramothwala -->
+            <div class="team-card">
+                <img src="{{ url_for('static', filename='images/team/Ntsakelo.jpeg') }}" 
+                     alt="Ntsakelo Ramothwala" 
+                     class="team-card-img">
+                <h3 class="team-card-name">Ntsakelo Ramothwala</h3>
+                <span class="team-card-role">Data Analyst</span>
+                <p class="team-card-desc">
+                    Expert in data analysis and visualization. Skilled at transforming 
+                    complex datasets into actionable insights to drive business decisions 
+                    and improve platform performance.
+                </p>
+                <div class="team-card-links">
+                    <a href="https://www.linkedin.com/in/ntsakelo-ramothwala-b6666334b" class="team-card-link" target="_blank" title="LinkedIn">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                    <a href="mailto:ramothwalantsakelo@gmail.com" class="team-card-link" title="Email">
+                        <i class="bi bi-envelope"></i>
+                    </a>
+                </div>
+            </div>
+
+      
+
+            <!-- Luyanda Maluleka -->
+            <div class="team-card">
+                <img src="{{ url_for('static', filename='images/team/Luyanda.jpeg') }}" 
+                     alt="Luyanda Maluleka" 
+                     class="team-card-img">
+                <h3 class="team-card-name">Luyanda Maluleka</h3>
+                <span class="team-card-role">Business Analyst</span>
+                <p class="team-card-desc">
+                    Specializes in business process analysis and improvement. 
+                    Experienced in bridging the gap between business needs and 
+                    technical solutions for optimal operational efficiency.
+                </p>
+                <div class="team-card-links">
+                    <a href="https://za.linkedin.com/in/luyanda-maluleka-133724380" class="team-card-link" target="_blank" title="LinkedIn">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Nobuhle Mbili -->
+            <div class="team-card">
+                <img src="{{ url_for('static', filename='images/team/Nobuhle.jpeg') }}" 
+                     alt="Nobuhle Mbili" 
+                     class="team-card-img">
+                <h3 class="team-card-name">Nobuhle Mbili</h3>
+                <span class="team-card-role">Software Developer</span>
+                <p class="team-card-desc">
+                    Passionate software developer focused on creating intuitive, 
+                    user-friendly applications. Strong advocate for clean code 
+                    practices and modern development methodologies.
+                </p>
+                <div class="team-card-links">
+                    <a href="https://za.linkedin.com/in/nobuhle-mbili-79a7893aa" class="team-card-link" target="_blank" title="LinkedIn">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+
+                  <!-- Philile Danisa -->
+            <div class="team-card">
+                <img src="{{ url_for('static', filename='images/team/Philile.jpeg') }}" 
+                     alt="Philile Danisa" 
+                     class="team-card-img">
+                <h3 class="team-card-name">Philile Danisa</h3>
+                <span class="team-card-role">Business Analyst</span>
+                <p class="team-card-desc">
+                    Skilled business analyst with expertise in requirements gathering, 
+                    process optimization, and stakeholder management. Focuses on 
+                    delivering data-driven business solutions.
+                </p>
+                <div class="team-card-links">
+                    <a href="https://www.linkedin.com/in/philile-danisa-040a80329" class="team-card-link" target="_blank" title="LinkedIn">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                    <a href="https://profile.indeed.com/p/phililed-stg5fh4" class="team-card-link" target="_blank" title="Indeed">
+                        <i class="bi bi-briefcase"></i>
+                    </a>
+                </div>
+            </div>
+
+            
+        </div>
+
+        <!-- Team Values Section -->
+        <div class="team-values">
+            <h2 class="values-title">Our Core Values</h2>
+            <div class="values-grid">
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <h4 class="value-title">Collaboration</h4>
+                    <p class="value-description">
+                        We believe in working together, sharing knowledge, and supporting 
+                        each other to achieve common goals.
+                    </p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-lightbulb-fill"></i>
+                    </div>
+                    <h4 class="value-title">Innovation</h4>
+                    <p class="value-description">
+                        Constantly seeking new ways to improve our platform and deliver 
+                        better experiences for students.
+                    </p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-heart-fill"></i>
+                    </div>
+                    <h4 class="value-title">Student-First</h4>
+                    <p class="value-description">
+                        Everything we do is focused on making student accommodation 
+                        search and booking easier and more reliable.
+                    </p>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4 class="value-title">Integrity</h4>
+                    <p class="value-description">
+                        We maintain the highest standards of honesty and transparency 
+                        in all our operations and communications.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add smooth hover effects
+        const teamCards = document.querySelectorAll('.team-card');
+        teamCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    });
+</script>
+{% endblock %}

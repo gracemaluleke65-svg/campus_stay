@@ -1,0 +1,784 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Admin Layout */
+    .admin-wrapper {
+        display: flex;
+        min-height: calc(100vh - 76px);
+        background: var(--light-bg);
+    }
+
+    /* Sidebar */
+    .admin-sidebar {
+        width: 280px;
+        background: white;
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 2rem 1.5rem;
+        position: fixed;
+        height: 100%;
+        overflow-y: auto;
+        z-index: 100;
+    }
+
+    .admin-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-brand-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .admin-brand-text {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: var(--dark-text);
+    }
+
+    .admin-brand-text span {
+        color: var(--primary-orange);
+    }
+
+    .nav-section {
+        margin-bottom: 2rem;
+    }
+
+    .nav-section-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--gray-text);
+        margin-bottom: 1rem;
+        padding-left: 0.75rem;
+    }
+
+    .admin-nav {
+        list-style: none;
+        padding: 0;
+    }
+
+    .admin-nav-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1rem;
+        color: var(--gray-text);
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .admin-nav-link:hover {
+        background: rgba(255, 107, 53, 0.08);
+        color: var(--primary-orange);
+    }
+
+    .admin-nav-link.active {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .admin-nav-link i {
+        font-size: 1.25rem;
+    }
+
+    /* Main Content */
+    .admin-main {
+        flex: 1;
+        margin-left: 280px;
+        padding: 2rem;
+    }
+
+    .admin-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .admin-title {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin: 0;
+    }
+
+    .admin-title span {
+        color: var(--primary-orange);
+    }
+
+    .admin-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-admin {
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-admin:hover {
+        background: var(--primary-orange);
+        color: white;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.users {
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+    }
+
+    .stat-icon.admins {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10B981;
+    }
+
+    .stat-icon.new {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3B82F6;
+    }
+
+    .stat-info h3 {
+        font-size: 1.875rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin: 0;
+    }
+
+    .stat-info p {
+        color: var(--gray-text);
+        margin: 0;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Table Container */
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .table-header {
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .table-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+    }
+
+    .search-box {
+        position: relative;
+        width: 300px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        border: 2px solid rgba(0, 0, 0, 0.05);
+        border-radius: 12px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--primary-orange);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-text);
+    }
+
+    /* Custom Table */
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .custom-table thead {
+        background: var(--light-bg);
+    }
+
+    .custom-table th {
+        padding: 1rem 1.5rem;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--gray-text);
+        border: none;
+    }
+
+    .custom-table td {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        vertical-align: middle;
+    }
+
+    .custom-table tbody tr {
+        transition: all 0.3s ease;
+    }
+
+    .custom-table tbody tr:hover {
+        background: rgba(255, 107, 53, 0.02);
+    }
+
+    .custom-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* User Cell */
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .user-avatar-large {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .user-info h4 {
+        font-size: 0.975rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0 0 0.25rem 0;
+    }
+
+    .user-info p {
+        font-size: 0.875rem;
+        color: var(--gray-text);
+        margin: 0;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .status-badge.admin {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+    }
+
+    .status-badge.user {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6B7280;
+    }
+
+    .status-badge i {
+        font-size: 0.625rem;
+    }
+
+    /* Action Buttons */
+    .action-btns {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.625rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-promote {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+    }
+
+    .btn-promote:hover {
+        background: #10B981;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-demote {
+        background: rgba(245, 158, 11, 0.1);
+        color: #D97706;
+    }
+
+    .btn-demote:hover {
+        background: #F59E0B;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-disabled {
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--gray-text);
+        cursor: not-allowed;
+        padding: 0.625rem 1.25rem;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    /* Mobile Toggle */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 56px;
+        height: 56px;
+        background: var(--primary-orange);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        box-shadow: var(--shadow-xl);
+        z-index: 1000;
+        cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-xl);
+        }
+
+        .admin-sidebar.active {
+            transform: translateX(0);
+        }
+
+        .admin-main {
+            margin-left: 0;
+        }
+
+        .sidebar-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .search-box {
+            width: 100%;
+        }
+
+        .table-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .custom-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .admin-main {
+            padding: 1rem;
+        }
+
+        .admin-header {
+            padding: 1.25rem;
+        }
+
+        .admin-title {
+            font-size: 1.5rem;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            padding: 1rem;
+            white-space: nowrap;
+        }
+
+        .action-btns {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-brand">
+            <div class="admin-brand-icon">
+                <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <div class="admin-brand-text">Admin<span>Panel</span></div>
+        </div>
+
+        <div class="nav-section">
+            <p class="nav-section-title">Main Menu</p>
+            <ul class="admin-nav">
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" href="{{ url_for('admin_dashboard') }}">
+                        <i class="bi bi-speedometer2"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link active" href="{{ url_for('admin_users') }}">
+                        <i class="bi bi-people-fill"></i>
+                        Users
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" href="{{ url_for('admin_dashboard') }}">
+                        <i class="bi bi-house-door-fill"></i>
+                        Accommodations
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" href="{{ url_for('admin_bookings') }}">
+                        <i class="bi bi-calendar-check-fill"></i>
+                        Bookings
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-section">
+            <p class="nav-section-title">Settings</p>
+            <ul class="admin-nav">
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link" href="{{ url_for('index') }}">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Site
+                    </a>
+                </li>
+                <li class="admin-nav-item">
+                    <a class="admin-nav-link text-danger" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Header -->
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-title">Manage <span>Users</span></h1>
+                <p class="text-muted mb-0">Manage user accounts and permissions</p>
+            </div>
+            <div class="admin-actions">
+                <button class="btn-admin" onclick="exportUsers()">
+                    <i class="bi bi-download"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon users">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ users|length }}</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon admins">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ users|selectattr('is_admin', 'equalto', true)|list|length }}</h3>
+                    <p>Administrators</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon new">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ users|selectattr('created_at')|list|length }}</h3>
+                    <p>Registered Users</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">All Users</h3>
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="userSearch" placeholder="Search users by name or email..." onkeyup="searchUsers()">
+                </div>
+            </div>
+
+            <table class="custom-table" id="usersTable">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Student Number</th>
+                        <th>Contact</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar-large">
+                                    {{ user.full_name[0] }}
+                                </div>
+                                <div class="user-info">
+                                    <h4>{{ user.full_name }}</h4>
+                                    <p>{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-monospace text-muted">{{ user.student_number }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="text-muted"><i class="bi bi-phone me-2"></i>{{ user.phone }}</span>
+                                <small class="text-muted mt-1">Joined {{ user.created_at.strftime('%b %Y') if user.created_at else 'Recently' }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            {% if user.is_admin %}
+                                <span class="status-badge admin">
+                                    <i class="bi bi-circle-fill"></i>
+                                    Administrator
+                                </span>
+                            {% else %}
+                                <span class="status-badge user">
+                                    <i class="bi bi-circle-fill"></i>
+                                    Student
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.id != current_user.id %}
+                                <div class="action-btns">
+                                    {% if user.is_admin %}
+                                        <form method="POST" action="{{ url_for('admin_demote_user', id=user.id) }}" style="display: inline;" onsubmit="return confirmAction('demote', '{{ user.full_name }}')">
+                                            <button type="submit" class="btn-action btn-demote">
+                                                <i class="bi bi-arrow-down-circle"></i>
+                                                Demote
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <form method="POST" action="{{ url_for('admin_promote_user', id=user.id) }}" style="display: inline;" onsubmit="return confirmAction('promote', '{{ user.full_name }}')">
+                                            <button type="submit" class="btn-action btn-promote">
+                                                <i class="bi bi-shield-check"></i>
+                                                Make Admin
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <span class="btn-disabled">
+                                    <i class="bi bi-person-check me-2"></i>
+                                    You
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- Mobile Sidebar Toggle -->
+<button class="sidebar-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list fs-4"></i>
+</button>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle sidebar on mobile
+    function toggleSidebar() {
+        document.getElementById('adminSidebar').classList.toggle('active');
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('adminSidebar');
+        const toggle = document.querySelector('.sidebar-toggle');
+        
+        if (window.innerWidth <= 991 && 
+            !sidebar.contains(e.target) && 
+            !toggle.contains(e.target) && 
+            sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    // Search users
+    function searchUsers() {
+        const input = document.getElementById('userSearch');
+        const filter = input.value.toLowerCase();
+        const table = document.getElementById('usersTable');
+        const tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            const td = tr[i].getElementsByTagName('td');
+            let found = false;
+            
+            // Search in name and email columns
+            for (let j = 0; j < 2; j++) {
+                if (td[j]) {
+                    const txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            
+            tr[i].style.display = found ? '' : 'none';
+        }
+    }
+
+    // Confirm action
+    function confirmAction(action, name) {
+        const message = action === 'promote' 
+            ? `Make ${name} an administrator? They will have full access to the admin panel.`
+            : `Remove admin rights from ${name}? They will revert to a regular user.`;
+        
+        return confirm(message);
+    }
+
+    // Export users (placeholder)
+    function exportUsers() {
+        showToast('Export feature coming soon!', 'info');
+    }
+
+    // Add loading state to buttons
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const btn = this.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Processing...';
+            
+            // Re-enable after 2 seconds (fallback)
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}

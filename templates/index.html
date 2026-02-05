@@ -1,0 +1,1123 @@
+{% extends "base.html" %}
+
+{% block title %}Find Your Perfect Student Accommodation{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #FFF5F2 0%, #FFFFFF 50%, #F0F7FF 100%);
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 800px;
+        height: 800px;
+        background: radial-gradient(circle, rgba(255, 107, 53, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(0, 78, 137, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        animation: fadeIn 0.8s ease;
+    }
+
+    .hero-title {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        color: var(--dark-text);
+        margin-bottom: 1.5rem;
+        animation: fadeIn 0.8s ease 0.1s both;
+    }
+
+    .hero-title span {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-text {
+        font-size: 1.25rem;
+        color: var(--gray-text);
+        margin-bottom: 2rem;
+        max-width: 500px;
+        animation: fadeIn 0.8s ease 0.2s both;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        animation: fadeIn 0.8s ease 0.3s both;
+    }
+
+    .hero-stats {
+        display: flex;
+        gap: 2.5rem;
+        margin-top: 3rem;
+        animation: fadeIn 0.8s ease 0.4s both;
+    }
+
+    .stat-item h4 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary-orange);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-item p {
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Hero Image */
+    .hero-image-wrapper {
+        position: relative;
+        z-index: 2;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .hero-image {
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-card {
+        position: absolute;
+        background: white;
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: var(--shadow-xl);
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .hero-card-1 {
+        top: 10%;
+        left: -20%;
+        animation-delay: 0.5s;
+    }
+
+    .hero-card-2 {
+        bottom: 20%;
+        right: -10%;
+        animation-delay: 1s;
+    }
+
+    /* Section Styles */
+    .section-header {
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto 4rem;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin-bottom: 1rem;
+    }
+
+    .section-subtitle {
+        color: var(--gray-text);
+        font-size: 1.125rem;
+    }
+
+    /* Property Cards */
+    .properties-section {
+        padding: 6rem 0;
+        background: var(--light-bg);
+    }
+
+    .property-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .property-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .property-image {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+    }
+
+    .property-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .property-card:hover .property-image img {
+        transform: scale(1.05);
+    }
+
+    .property-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        color: var(--primary-orange);
+        font-size: 0.875rem;
+        box-shadow: var(--shadow);
+    }
+
+    .favorite-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: var(--shadow);
+    }
+
+    .favorite-btn:hover {
+        transform: scale(1.1);
+        background: white;
+    }
+
+    .favorite-btn.active i {
+        color: #EF4444;
+        fill: #EF4444;
+    }
+
+    .property-content {
+        padding: 1.5rem;
+    }
+
+    .property-type {
+        display: inline-block;
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        padding: 0.375rem 0.875rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+    }
+
+    .property-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .property-location {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .property-features {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .feature-tag {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        background: var(--light-bg);
+        padding: 0.375rem 0.75rem;
+        border-radius: 8px;
+    }
+
+    .property-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1.25rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .property-price {
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
+    }
+
+    .price-amount {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary-orange);
+    }
+
+    .price-period {
+        color: var(--gray-text);
+        font-size: 0.875rem;
+    }
+
+    .btn-view {
+        padding: 0.625rem 1.25rem;
+        background: var(--primary-orange);
+        color: white;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-view:hover {
+        background: var(--primary-orange-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        color: white;
+    }
+
+    /* How It Works */
+    .how-it-works {
+        padding: 6rem 0;
+        background: white;
+    }
+
+    .step-card {
+        text-align: center;
+        padding: 2.5rem 2rem;
+        background: white;
+        border-radius: 24px;
+        border: 2px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .step-card:hover {
+        border-color: var(--primary-orange);
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .step-number {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+    }
+
+    .step-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 107, 53, 0.1);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: var(--primary-orange);
+        font-size: 2rem;
+    }
+
+    .step-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        color: var(--dark-text);
+    }
+
+    .step-description {
+        color: var(--gray-text);
+        line-height: 1.6;
+    }
+
+    /* Trust Badges */
+    .trust-section {
+        padding: 4rem 0;
+        background: var(--light-bg);
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .trust-logos {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 4rem;
+        flex-wrap: wrap;
+        opacity: 0.6;
+    }
+
+    .trust-logos i {
+        font-size: 2.5rem;
+        color: var(--gray-text);
+    }
+
+    /* Team Section */
+    .team-section {
+        padding: 6rem 0;
+        background: var(--light-bg);
+    }
+
+    .team-carousel {
+        position: relative;
+        padding: 2rem 0;
+    }
+
+    .team-member-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2rem;
+        text-align: center;
+        height: 100%;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .team-member-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .team-member-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        margin: 0 auto 1.5rem;
+    }
+
+    .team-member-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .team-member-role {
+        display: inline-block;
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        padding: 0.375rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .team-member-desc {
+        color: var(--gray-text);
+        margin-bottom: 1.5rem;
+        min-height: 60px;
+    }
+
+    .team-member-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .team-member-link {
+        width: 40px;
+        height: 40px;
+        background: var(--light-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark-text);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .team-member-link:hover {
+        background: var(--primary-orange);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: var(--shadow-lg);
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 1;
+    }
+
+    .carousel-control-prev {
+        left: -25px;
+    }
+
+    .carousel-control-next {
+        right: -25px;
+    }
+
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        background: var(--primary-orange);
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1) brightness(0);
+    }
+
+    .carousel-control-prev:hover .carousel-control-prev-icon,
+    .carousel-control-next:hover .carousel-control-next-icon {
+        filter: invert(1) brightness(1);
+    }
+
+    .carousel-indicators {
+        bottom: -40px;
+    }
+
+    .carousel-indicators button {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.2);
+        margin: 0 4px;
+        border: none;
+    }
+
+    .carousel-indicators button.active {
+        background-color: var(--primary-orange);
+    }
+
+    /* CTA Section */
+    .cta-section {
+        padding: 6rem 0;
+        background: linear-gradient(135deg, var(--dark-text) 0%, #16213E 100%);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 107, 53, 0.2) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .cta-content {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 1rem;
+    }
+
+    .cta-text {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.25rem;
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 991px) {
+        .hero-section {
+            min-height: auto;
+            padding: 6rem 0 4rem;
+        }
+
+        .hero-image-wrapper {
+            margin-top: 3rem;
+        }
+
+        .hero-card {
+            display: none;
+        }
+
+        .hero-stats {
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .carousel-control-prev {
+            left: 10px;
+        }
+
+        .carousel-control-next {
+            right: 10px;
+        }
+
+        .team-member-img {
+            width: 120px;
+            height: 120px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+        }
+
+        .hero-buttons .btn {
+            width: 100%;
+            text-align: center;
+        }
+
+        .hero-stats {
+            gap: 1.5rem;
+        }
+
+        .property-image {
+            height: 240px;
+        }
+
+        .cta-title {
+            font-size: 1.875rem;
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="bi bi-star-fill"></i>
+                        Trusted by 10,000+ Students
+                    </div>
+                    <h1 class="hero-title">
+                        Find Your Perfect <br>
+                        <span>Student Home</span>
+                    </h1>
+                    <p class="hero-text">
+                        Discover modern, affordable accommodation designed for students. 
+                        Book securely with instant confirmation and verified listings.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="{{ url_for('accommodations') }}" class="btn btn-primary-orange btn-lg">
+                            <i class="bi bi-search me-2"></i>Browse Properties
+                        </a>
+                        {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('register') }}" class="btn btn-outline-orange btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <h4>500+</h4>
+                            <p>Properties</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>10k+</h4>
+                            <p>Students</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>4.9</h4>
+                            <p>Rating</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Modern Student Accommodation" 
+                         class="hero-image img-fluid">
+                    
+                    <div class="hero-card hero-card-1">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="bg-success rounded-circle p-2">
+                                <i class="bi bi-check-lg text-white"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold">Verified</p>
+                                <small class="text-muted">By CampusStay</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-card hero-card-2">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="star-rating">
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                            <div>
+                                <p class="mb-0 fw-bold">4.9/5</p>
+                                <small class="text-muted">From 2k+ reviews</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Badges -->
+<section class="trust-section">
+    <div class="container">
+        <p class="text-center text-muted mb-4 fw-medium">Trusted by leading universities</p>
+        <div class="trust-logos">
+            <i class="bi bi-building"></i>
+            <i class="bi bi-bank"></i>
+            <i class="bi bi-mortarboard-fill"></i>
+            <i class="bi bi-book-fill"></i>
+            <i class="bi bi-globe"></i>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Properties -->
+<section class="properties-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Accommodations</h2>
+            <p class="section-subtitle">Hand-picked properties with top ratings and modern amenities for your comfort</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for acc in featured %}
+            <div class="col-lg-4 col-md-6">
+                <div class="property-card">
+                    <div class="property-image">
+                        <img src="{{ url_for('static', filename='uploads/' + acc.image_filename) if acc.image_filename else 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" 
+                             alt="{{ acc.title }}">
+                        <div class="property-badge">R {{ "%.0f"|format(acc.price_per_month) }}/mo</div>
+                        {% if current_user.is_authenticated %}
+                        <button class="favorite-btn {{ 'active' if acc.id in user_favorites }}" 
+                                data-id="{{ acc.id }}" 
+                                onclick="toggleFavorite(this, {{ acc.id }})">
+                            <i class="bi bi-heart{{ '-fill' if acc.id in user_favorites else '' }}"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                    <div class="property-content">
+                        <span class="property-type">{{ acc.room_type|title }}</span>
+                        <h3 class="property-title">{{ acc.title }}</h3>
+                        <div class="property-location">
+                            <i class="bi bi-geo-alt-fill text-primary-orange"></i>
+                            {{ acc.location }}
+                        </div>
+                        
+                        <div class="property-features">
+                            {% set amenities = acc.get_amenities_list()[:3] %}
+                            {% for amenity in amenities %}
+                            <span class="feature-tag">
+                                <i class="bi {{ get_amenity_icon(amenity) }}"></i>
+                                {{ amenity|replace('_', ' ')|title }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="property-footer">
+                            <div class="property-price">
+                                <span class="price-amount">R {{ "%.0f"|format(acc.price_per_month) }}</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                            <div class="star-rating">
+                                {% set avg_rating = acc.average_rating()|int %}
+                                {% for i in range(5) %}
+                                    {% if i < avg_rating %}
+                                        <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <small class="ms-1 text-muted">({{ acc.reviews|length }})</small>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('accommodation_detail', id=acc.id) }}" class="btn-view mt-3 d-block text-center">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('accommodations') }}" class="btn btn-outline-orange btn-lg">
+                View All Properties <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">How CampusStay Works</h2>
+            <p class="section-subtitle">Simple steps to find and book your perfect accommodation in minutes</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h3 class="step-title">Browse & Search</h3>
+                    <p class="step-description">Filter by location, price, room type, and amenities to find properties that match your needs and budget.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <h3 class="step-title">Book Securely</h3>
+                    <p class="step-description">Choose your duration, pay securely with Stripe, and get instant booking confirmation.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="step-card">
+                    <div class="step-icon">
+                        <i class="bi bi-house-check"></i>
+                    </div>
+                    <h3 class="step-title">Move In & Enjoy</h3>
+                    <p class="step-description">Complete your booking and move into your new student home. Leave reviews to help others!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="team-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Meet Our Team</h2>
+            <p class="section-subtitle">The talented professionals behind CampusStay's success</p>
+        </div>
+
+        <div class="team-carousel">
+            <div id="teamCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#teamCarousel" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#teamCarousel" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#teamCarousel" data-bs-slide-to="2"></button>
+                    <button type="button" data-bs-target="#teamCarousel" data-bs-slide-to="3"></button>
+                    <button type="button" data-bs-target="#teamCarousel" data-bs-slide-to="4"></button>
+                </div>
+                
+                <div class="carousel-inner">
+                    <!-- Shichabo Nkuna -->
+                    <div class="carousel-item active">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="team-member-card">
+                                    <img src="{{ url_for('static', filename='images/team/Shichabo.png') }}" 
+                                         alt="Shichabo Nkuna" 
+                                         class="team-member-img">
+                                    <h3 class="team-member-name">Shichabo Nkuna</h3>
+                                    <span class="team-member-role">Software Developer</span>
+                                    <p class="team-member-desc">Developed 15+ full-stack projects with expertise in modern web technologies and scalable applications.</p>
+                                    <div class="team-member-links">
+                                        <a href="https://shichabonkuna22-star.github.io/portfolio/" class="team-member-link" target="_blank" title="Portfolio">
+                                            <i class="bi bi-globe"></i>
+                                        </a>
+                                        <a href="https://www.linkedin.com/in/shichabo-nkuna-7004a2244" class="team-member-link" target="_blank" title="LinkedIn">
+                                            <i class="bi bi-linkedin"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Philile Danisa -->
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="team-member-card">
+                                    <img src="{{ url_for('static', filename='images/team/Philile.jpeg') }}" 
+                                         alt="Philile Danisa" 
+                                         class="team-member-img">
+                                    <h3 class="team-member-name">Philile Danisa</h3>
+                                    <span class="team-member-role">Business Analyst</span>
+                                    <p class="team-member-desc">Expert in business process analysis and requirements gathering with strong stakeholder management skills.</p>
+                                    <div class="team-member-links">
+                                        <a href="https://www.linkedin.com/in/philile-danisa-040a80329" class="team-member-link" target="_blank" title="LinkedIn">
+                                            <i class="bi bi-linkedin"></i>
+                                        </a>
+                                        <a href="https://profile.indeed.com/p/phililed-stg5fh4" class="team-member-link" target="_blank" title="Indeed">
+                                            <i class="bi bi-briefcase"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Luyanda Maluleka -->
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="team-member-card">
+                                    <img src="{{ url_for('static', filename='images/team/Luyanda.jpeg') }}" 
+                                         alt="Luyanda Maluleka" 
+                                         class="team-member-img">
+                                    <h3 class="team-member-name">Luyanda Maluleka</h3>
+                                    <span class="team-member-role">Business Analyst</span>
+                                    <p class="team-member-desc">Specialized in data-driven business solutions and process optimization for enhanced operational efficiency.</p>
+                                    <div class="team-member-links">
+                                        <a href="https://za.linkedin.com/in/luyanda-maluleka-133724380" class="team-member-link" target="_blank" title="LinkedIn">
+                                            <i class="bi bi-linkedin"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nobuhle Mbili -->
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="team-member-card">
+                                    <img src="{{ url_for('static', filename='images/team/Nobuhle.jpeg') }}" 
+                                         alt="Nobuhle Mbili" 
+                                         class="team-member-img">
+                                    <h3 class="team-member-name">Nobuhle Mbili</h3>
+                                    <span class="team-member-role">Software Developer</span>
+                                    <p class="team-member-desc">Passionate about creating user-centric applications with clean code and modern development practices.</p>
+                                    <div class="team-member-links">
+                                        <a href="https://za.linkedin.com/in/nobuhle-mbili-79a7893aa" class="team-member-link" target="_blank" title="LinkedIn">
+                                            <i class="bi bi-linkedin"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ntsakelo Ramothwala -->
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <div class="team-member-card">
+                                    <img src="{{ url_for('static', filename='images/team/Ntsakelo.jpeg') }}" 
+                                         alt="Ntsakelo Ramothwala" 
+                                         class="team-member-img">
+                                    <h3 class="team-member-name">Ntsakelo Ramothwala</h3>
+                                    <span class="team-member-role">Data Analyst</span>
+                                    <p class="team-member-desc">Expert in data analysis, visualization, and deriving actionable insights from complex datasets.</p>
+                                    <div class="team-member-links">
+                                        <a href="https://www.linkedin.com/in/ntsakelo-ramothwala-b6666334b" class="team-member-link" target="_blank" title="LinkedIn">
+                                            <i class="bi bi-linkedin"></i>
+                                        </a>
+                                        <a href="mailto:ramothwalantsakelo@gmail.com" class="team-member-link" title="Email">
+                                            <i class="bi bi-envelope"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#teamCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#teamCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{{ url_for('team_page') }}" class="btn btn-outline-orange">
+                <i class="bi bi-people me-2"></i>View Full Team
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Find Your New Home?</h2>
+            <p class="cta-text">Join thousands of students who found their perfect accommodation through CampusStay</p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="{{ url_for('accommodations') }}" class="btn btn-primary-orange btn-lg">
+                    <i class="bi bi-search me-2"></i>Start Browsing
+                </a>
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('register') }}" class="btn btn-light btn-lg">
+                    <i class="bi bi-person-plus me-2"></i>Sign Up Free
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle favorite function
+    async function toggleFavorite(btn, accId) {
+        if (!{{ 'true' if current_user.is_authenticated else 'false' }}) {
+            window.location.href = "{{ url_for('login') }}";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/favorite/toggle/${accId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            const icon = btn.querySelector('i');
+            
+            if (data.status === 'added') {
+                btn.classList.add('active');
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+                showToast('Added to favorites!', 'success');
+            } else {
+                btn.classList.remove('active');
+                icon.classList.remove('bi-heart-fill');
+                icon.classList.add('bi-heart');
+                showToast('Removed from favorites', 'info');
+            }
+            
+            // Animation
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                btn.style.transform = 'scale(1)';
+            }, 200);
+            
+        } catch (error) {
+            showToast('Error updating favorites', 'danger');
+        }
+    }
+
+    // Auto-rotate team carousel
+    document.addEventListener('DOMContentLoaded', function() {
+        const teamCarousel = document.getElementById('teamCarousel');
+        if (teamCarousel) {
+            const carousel = new bootstrap.Carousel(teamCarousel, {
+                interval: 5000, // 5 seconds
+                wrap: true,
+                pause: 'hover'
+            });
+        }
+    });
+</script>
+{% endblock %}

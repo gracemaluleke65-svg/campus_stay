@@ -1,0 +1,46 @@
+/* static/css/style.css - Optional additional styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.btn {
+    border-radius: 5px;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.accommodation-card {
+    transition: all 0.3s ease;
+}
+
+.accommodation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.heart-btn {
+    transition: all 0.2s ease;
+}
+
+.heart-btn:hover {
+    transform: scale(1.1);
+}
+
+.spots-badge {
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.star-rating {
+    color: #ffc107;
+}

@@ -1,0 +1,716 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | CampusStay{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Admin Dashboard Specific Styles */
+    .admin-wrapper {
+        display: flex;
+        min-height: calc(100vh - 76px);
+        background: var(--light-bg);
+    }
+
+    /* Sidebar */
+    .admin-sidebar {
+        width: 280px;
+        background: white;
+        border-right: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 2rem 0;
+        position: fixed;
+        height: 100%;
+        overflow-y: auto;
+        z-index: 100;
+    }
+
+    .sidebar-header {
+        padding: 0 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar-nav {
+        list-style: none;
+        padding: 0;
+    }
+
+    .sidebar-nav li {
+        margin: 0.25rem 0;
+    }
+
+    .sidebar-nav a {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.875rem 1.5rem;
+        color: var(--gray-text);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border-left: 3px solid transparent;
+    }
+
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+        color: var(--primary-orange);
+        background: rgba(255, 107, 53, 0.08);
+        border-left-color: var(--primary-orange);
+    }
+
+    .sidebar-nav a i {
+        font-size: 1.25rem;
+    }
+
+    /* Main Content */
+    .admin-main {
+        flex: 1;
+        margin-left: 280px;
+        padding: 2rem;
+    }
+
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .admin-title {
+        font-size: 1.875rem;
+        font-weight: 800;
+        color: var(--dark-text);
+    }
+
+    .admin-title span {
+        color: var(--primary-orange);
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card.users::before { background: linear-gradient(90deg, #3B82F6 0%, #2563EB 100%); }
+    .stat-card.properties::before { background: linear-gradient(90deg, #10B981 0%, #059669 100%); }
+    .stat-card.bookings::before { background: linear-gradient(90deg, #8B5CF6 0%, #7C3AED 100%); }
+    .stat-card.revenue::before { background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%); }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-card.users .stat-icon { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+    .stat-card.properties .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+    .stat-card.bookings .stat-icon { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+    .stat-card.revenue .stat-icon { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+
+    .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    .trend-up {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10B981;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Content Cards */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .card-header-custom {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+    }
+
+    .card-body-custom {
+        padding: 1.5rem;
+    }
+
+    /* Quick Actions */
+    .action-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .action-btn-primary {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .action-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        color: white;
+    }
+
+    .action-btn-outline {
+        background: white;
+        color: var(--dark-text);
+        border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn-outline:hover {
+        border-color: var(--primary-orange);
+        color: var(--primary-orange);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+    }
+
+    .action-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .action-btn-primary .action-icon {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .action-btn-outline .action-icon {
+        background: var(--light-bg);
+    }
+
+    /* System Info */
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--gray-text);
+        font-weight: 500;
+    }
+
+    .info-label i {
+        color: var(--primary-orange);
+        font-size: 1.25rem;
+    }
+
+    .info-value {
+        font-weight: 700;
+        color: var(--dark-text);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.875rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .status-active {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10B981;
+    }
+
+    .status-pending {
+        background: rgba(245, 158, 11, 0.1);
+        color: #F59E0B;
+    }
+
+    /* Charts Placeholder */
+    .chart-placeholder {
+        height: 200px;
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.05) 0%, rgba(0, 78, 137, 0.05) 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-text);
+        font-weight: 500;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 991px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .admin-sidebar.open {
+            transform: translateX(0);
+        }
+
+        .admin-main {
+            margin-left: 0;
+        }
+
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Recent Activity */
+    .activity-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+
+    .activity-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .activity-icon.add { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+    .activity-icon.booking { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+    .activity-icon.user { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-text {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        font-size: 0.75rem;
+        color: var(--gray-text);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="admin-badge mb-3">
+                <i class="bi bi-shield-check"></i>
+                Admin Panel
+            </div>
+            <h6 class="text-muted mb-0">Welcome back,</h6>
+            <h5 class="fw-bold mb-0">{{ current_user.full_name }}</h5>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li>
+                <a href="{{ url_for('admin_dashboard') }}" class="active">
+                    <i class="bi bi-speedometer2"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('accommodations') }}">
+                    <i class="bi bi-house-door"></i>
+                    Accommodations
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_new_accommodation') }}">
+                    <i class="bi bi-plus-circle"></i>
+                    Add New
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_bookings') }}">
+                    <i class="bi bi-calendar-check"></i>
+                    Bookings
+                </a>
+            </li>
+            <li>
+                <a href="{{ url_for('admin_users') }}">
+                    <i class="bi bi-people"></i>
+                    Users
+                </a>
+            </li>
+            <li class="mt-4 pt-4 border-top">
+                <a href="{{ url_for('index') }}">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Site
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-title">Dashboard <span>Overview</span></h1>
+                <p class="text-muted mb-0">Welcome to your admin control center</p>
+            </div>
+            <button class="btn btn-primary-orange d-lg-none" onclick="toggleSidebar()">
+                <i class="bi bi-list me-2"></i>Menu
+            </button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card users">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <span class="stat-trend trend-up">
+                        <i class="bi bi-arrow-up-short"></i>12%
+                    </span>
+                </div>
+                <div class="stat-value">{{ stats.total_users }}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+
+            <div class="stat-card properties">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="bi bi-house-door"></i>
+                    </div>
+                    <span class="stat-trend trend-up">
+                        <i class="bi bi-arrow-up-short"></i>8%
+                    </span>
+                </div>
+                <div class="stat-value">{{ stats.total_accommodations }}</div>
+                <div class="stat-label">Properties</div>
+            </div>
+
+            <div class="stat-card bookings">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <span class="stat-trend trend-up">
+                        <i class="bi bi-arrow-up-short"></i>24%
+                    </span>
+                </div>
+                <div class="stat-value">{{ stats.total_bookings }}</div>
+                <div class="stat-label">Total Bookings</div>
+            </div>
+
+            <div class="stat-card revenue">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <span class="stat-trend trend-up">
+                        <i class="bi bi-arrow-up-short"></i>18%
+                    </span>
+                </div>
+                <div class="stat-value">R {{ "%.0f"|format(stats.total_revenue) }}</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Quick Actions -->
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <h3 class="card-title">
+                        <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
+                        Quick Actions
+                    </h3>
+                </div>
+                <div class="card-body-custom">
+                    <div class="action-list">
+                        <a href="{{ url_for('admin_new_accommodation') }}" class="action-btn action-btn-primary">
+                            <div class="action-icon">
+                                <i class="bi bi-plus-lg"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Add New Accommodation</div>
+                                <small class="opacity-75">Create a new property listing</small>
+                            </div>
+                            <i class="bi bi-arrow-right ms-auto"></i>
+                        </a>
+                        
+                        <a href="{{ url_for('accommodations') }}" class="action-btn action-btn-outline">
+                            <div class="action-icon">
+                                <i class="bi bi-eye"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">View All Properties</div>
+                                <small class="text-muted">Manage existing listings</small>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                        
+                        <a href="{{ url_for('admin_users') }}" class="action-btn action-btn-outline">
+                            <div class="action-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">Manage Users</div>
+                                <small class="text-muted">View and edit user accounts</small>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                        
+                        <a href="{{ url_for('admin_bookings') }}" class="action-btn action-btn-outline">
+                            <div class="action-icon">
+                                <i class="bi bi-calendar"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold">View Bookings</div>
+                                <small class="text-muted">Check all reservations</small>
+                            </div>
+                            <i class="bi bi-chevron-right ms-auto text-muted"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="content-card">
+                <div class="card-header-custom">
+                    <h3 class="card-title">
+                        <i class="bi bi-activity text-primary-orange me-2"></i>
+                        System Status
+                    </h3>
+                    <span class="status-badge status-active">
+                        <i class="bi bi-circle-fill" style="font-size: 6px;"></i>
+                        Online
+                    </span>
+                </div>
+                <div class="card-body-custom">
+                    <ul class="info-list">
+                        <li class="info-item">
+                            <span class="info-label">
+                                <i class="bi bi-house-check"></i>
+                                Active Accommodations
+                            </span>
+                            <span class="info-value">{{ stats.active_accommodations }}</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">
+                                <i class="bi bi-check-circle"></i>
+                                Paid Bookings
+                            </span>
+                            <span class="info-value text-success">{{ stats.paid_bookings }}</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">
+                                <i class="bi bi-clock-history"></i>
+                                Pending Bookings
+                            </span>
+                            <span class="info-value text-warning">{{ stats.total_bookings - stats.paid_bookings }}</span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">
+                                <i class="bi bi-percent"></i>
+                                Occupancy Rate
+                            </span>
+                            <span class="info-value">
+                                {% if stats.total_accommodations > 0 %}
+                                    {{ "%.1f"|format((stats.paid_bookings / stats.total_accommodations) * 100) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="info-item">
+                            <span class="info-label">
+                                <i class="bi bi-wallet2"></i>
+                                Avg. Revenue/Property
+                            </span>
+                            <span class="info-value">
+                                {% if stats.total_accommodations > 0 %}
+                                    R {{ "%.0f"|format(stats.total_revenue / stats.total_accommodations) }}
+                                {% else %}
+                                    R 0
+                                {% endif %}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity (Optional Enhancement) -->
+        <div class="content-card mt-4">
+            <div class="card-header-custom">
+                <h3 class="card-title">
+                    <i class="bi bi-clock-history text-primary-orange me-2"></i>
+                    Quick Stats
+                </h3>
+            </div>
+            <div class="card-body-custom">
+                <div class="chart-placeholder">
+                    <div class="text-center">
+                        <i class="bi bi-bar-chart-line fs-1 text-muted mb-2 d-block"></i>
+                        <span>Analytics charts can be integrated here</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleSidebar() {
+        document.querySelector('.admin-sidebar').classList.toggle('open');
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        const sidebar = document.querySelector('.admin-sidebar');
+        const toggleBtn = document.querySelector('.btn-primary-orange');
+        
+        if (window.innerWidth < 992 && 
+            !sidebar.contains(e.target) && 
+            !toggleBtn.contains(e.target) && 
+            sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+        }
+    });
+</script>
+{% endblock %}

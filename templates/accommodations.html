@@ -1,0 +1,1084 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Student Accommodations{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        padding: 4rem 0 6rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .page-header h1 {
+        color: white;
+        font-weight: 800;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.125rem;
+    }
+
+    /* Search Section */
+    .search-section {
+        margin-top: -3rem;
+        position: relative;
+        z-index: 10;
+        margin-bottom: 3rem;
+    }
+
+    .search-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: var(--shadow-xl);
+        padding: 2rem;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-orange);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+    }
+
+    .search-btn {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border: none;
+        color: white;
+        padding: 0.875rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    /* Results Header */
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .results-count {
+        font-weight: 600;
+        color: var(--gray-text);
+    }
+
+    .results-count span {
+        color: var(--primary-orange);
+        font-weight: 700;
+    }
+
+    .sort-select {
+        border: 2px solid #E5E7EB;
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        color: var(--dark-text);
+        background: white;
+        cursor: pointer;
+    }
+
+    /* Property Cards Grid */
+    .properties-grid {
+        padding-bottom: 4rem;
+    }
+
+    .property-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        position: relative;
+        opacity: 1;
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+
+    .property-card.filtered-out {
+        opacity: 0.3;
+        transform: scale(0.95);
+        pointer-events: none;
+    }
+
+    .property-card.hidden {
+        display: none !important;
+    }
+
+    .property-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .property-image-wrapper {
+        position: relative;
+        height: 260px;
+        overflow: hidden;
+    }
+
+    .property-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .property-card:hover .property-image {
+        transform: scale(1.05);
+    }
+
+    /* Badges */
+    .availability-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.875rem;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .availability-badge.available {
+        color: #059669;
+    }
+
+    .availability-badge.limited {
+        color: #D97706;
+    }
+
+    .availability-badge.full {
+        color: #DC2626;
+    }
+
+    .favorite-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 44px;
+        height: 44px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: var(--shadow);
+        z-index: 2;
+    }
+
+    .favorite-btn:hover {
+        transform: scale(1.1) rotate(5deg);
+        background: white;
+    }
+
+    .favorite-btn.active i {
+        color: #EF4444;
+        fill: #EF4444;
+    }
+
+    .price-tag {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        padding: 2rem 1.5rem 1rem;
+        color: white;
+        font-weight: 800;
+        font-size: 1.5rem;
+    }
+
+    .price-tag small {
+        font-weight: 500;
+        font-size: 0.875rem;
+        opacity: 0.9;
+    }
+
+    /* Card Content */
+    .property-content {
+        padding: 1.5rem;
+    }
+
+    .property-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        padding: 0.375rem 0.875rem;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.75rem;
+    }
+
+    .property-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+
+    .property-location {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .property-location i {
+        color: var(--primary-orange);
+    }
+
+    /* Rating */
+    .rating-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .star-rating {
+        display: flex;
+        gap: 0.125rem;
+    }
+
+    .star-rating i {
+        color: var(--accent-yellow);
+        font-size: 0.875rem;
+    }
+
+    .rating-count {
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Amenities */
+    .amenities-row {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .amenity-item {
+        width: 36px;
+        height: 36px;
+        background: var(--light-bg);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gray-text);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .amenity-item:hover {
+        background: rgba(255, 107, 53, 0.1);
+        color: var(--primary-orange);
+        transform: translateY(-2px);
+    }
+
+    .amenity-item::after {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--dark-text);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+    }
+
+    .amenity-item:hover::after {
+        opacity: 1;
+    }
+
+    /* Card Actions */
+    .card-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-view {
+        flex: 1;
+        padding: 0.875rem;
+        background: white;
+        border: 2px solid #E5E7EB;
+        color: var(--dark-text);
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view:hover {
+        border-color: var(--primary-orange);
+        color: var(--primary-orange);
+    }
+
+    .btn-book {
+        flex: 1;
+        padding: 0.875rem;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border: none;
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+
+    .btn-book:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        color: white;
+    }
+
+    .btn-book:disabled {
+        background: #9CA3AF;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+
+    /* Filtering Status */
+    .filter-status {
+        background: rgba(255, 107, 53, 0.1);
+        border: 2px solid rgba(255, 107, 53, 0.2);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .active-filters {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-badge {
+        background: var(--primary-orange);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-badge .remove-filter {
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        padding: 0;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s ease;
+    }
+
+    .filter-badge .remove-filter:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+    }
+
+    .empty-state-icon {
+        width: 120px;
+        height: 120px;
+        background: var(--light-bg);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: var(--gray-text);
+        font-size: 3rem;
+    }
+
+    .empty-state h3 {
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--gray-text);
+        margin-bottom: 1.5rem;
+    }
+
+    /* Pagination */
+    .pagination-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 3rem 0 4rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.875rem;
+        }
+
+        .search-card {
+            padding: 1.5rem;
+        }
+
+        .property-image-wrapper {
+            height: 220px;
+        }
+
+        .card-actions {
+            flex-direction: column;
+        }
+
+        .filter-status {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="page-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1>Find Your Perfect Stay</h1>
+                <p>Browse student accommodations in South Africa</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- Search Section -->
+    <div class="search-section">
+        <div class="search-card">
+            <form id="filterForm" method="GET" action="{{ url_for('accommodations') }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label">
+                            <i class="bi bi-geo-alt me-1"></i>Location or Name
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="searchInput"
+                               placeholder="Search by location or property name..."
+                               value="{{ request.args.get('search', '') }}">
+                    </div>
+                   
+                    
+                   
+                    <div class="col-lg-2 col-md-6">
+                        <button type="button" id="applyFilters" class="search-btn">
+                            <i class="bi bi-filter me-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Filters Status -->
+    <div id="filterStatus" class="filter-status" style="display: none;">
+        <div>
+            <strong>Active Filters:</strong>
+            <div class="active-filters mt-2" id="activeFilters"></div>
+        </div>
+        <button type="button" id="clearFilters" class="btn btn-outline-primary-orange">
+            <i class="bi bi-x-circle me-2"></i>Clear All
+        </button>
+    </div>
+
+    <!-- Results Section -->
+    <section class="properties-grid">
+        <div class="results-header">
+            <div class="results-count">
+                Showing <span id="visibleCount">{{ accommodations|length }}</span> of <span id="totalCount">{{ accommodations|length }}</span> properties
+            </div>
+            <select class="sort-select" id="sortSelect">
+                <option value="recommended">Sort by: Recommended</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+                <option value="availability">Most Available</option>
+            </select>
+        </div>
+
+        <div class="row g-4" id="propertiesContainer">
+            {% for acc in accommodations %}
+            <div class="col-lg-4 col-md-6 property-item" 
+                 data-price="{{ acc.price_per_month }}"
+                 data-location="{{ acc.location.lower() }}"
+                 data-title="{{ acc.title.lower() }}"
+                 data-room-type="{{ acc.room_type }}"
+                 data-rating="{{ acc.average_rating() }}"
+                 data-available="{{ acc.available_spots() }}">
+                <div class="property-card">
+                    <div class="property-image-wrapper">
+                        <img src="{{ url_for('static', filename='uploads/' + acc.image_filename) if acc.image_filename else 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" 
+                             alt="{{ acc.title }}" 
+                             class="property-image">
+                        
+                        <!-- Availability Badge -->
+                        {% set spots = acc.available_spots() %}
+                        <div class="availability-badge {{ 'full' if spots == 0 else 'limited' if spots <= 2 else 'available' }}">
+                            <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
+                            {% if spots == 0 %}
+                                Fully Booked
+                            {% elif spots <= 2 %}
+                                Only {{ spots }} left
+                            {% else %}
+                                {{ spots }} spots available
+                            {% endif %}
+                        </div>
+
+                        <!-- Favorite Button -->
+                        {% if current_user.is_authenticated %}
+                        <button class="favorite-btn {{ 'active' if acc.id in user_favorites }}" 
+                                onclick="toggleFavorite({{ acc.id }}, this)"
+                                title="{{ 'Remove from favorites' if acc.id in user_favorites else 'Add to favorites' }}">
+                            <i class="bi {{ 'bi-heart-fill' if acc.id in user_favorites else 'bi-heart' }}"></i>
+                        </button>
+                        {% endif %}
+
+                        <!-- Price Tag -->
+                        <div class="price-tag">
+                            R {{ "%.0f"|format(acc.price_per_month) }}
+                            <small>/ month</small>
+                        </div>
+                    </div>
+
+                    <div class="property-content">
+                        <span class="property-type-badge">
+                            <i class="bi bi-door-closed"></i>
+                            {{ acc.room_type.title() }}
+                        </span>
+                        
+                        <h3 class="property-title">{{ acc.title }}</h3>
+                        
+                        <div class="property-location">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            {{ acc.location }}
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="rating-wrapper">
+                            <div class="star-rating">
+                                {% set avg_rating = acc.average_rating()|int %}
+                                {% for i in range(5) %}
+                                    {% if i < avg_rating %}
+                                        <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="rating-count">({{ acc.reviews|length }} reviews)</span>
+                        </div>
+
+                        <!-- Amenities -->
+                        <div class="amenities-row">
+                            {% for amenity in acc.get_amenities_list() %}
+                            <div class="amenity-item" title="{{ amenity.replace('_', ' ').title() }}">
+                                <i class="bi {{ get_amenity_icon(amenity) }}"></i>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="card-actions">
+                            <a href="{{ url_for('accommodation_detail', id=acc.id) }}" class="btn-view">
+                                View Details
+                            </a>
+                            <a href="{{ url_for('accommodation_detail', id=acc.id) }}" 
+                               class="btn-book {{ 'disabled' if acc.is_full() }}"
+                               {{ 'aria-disabled=true' if acc.is_full() }}>
+                                {% if acc.is_full() %}
+                                    Full
+                                {% else %}
+                                    Book Now
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <h3>No properties found</h3>
+                    <p>Try adjusting your search criteria or browse all available accommodations</p>
+                    <button id="resetView" class="btn btn-primary-orange">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Filters
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all property items
+    const propertyItems = document.querySelectorAll('.property-item');
+    const propertiesContainer = document.getElementById('propertiesContainer');
+    const visibleCountElement = document.getElementById('visibleCount');
+    const totalCountElement = document.getElementById('totalCount');
+    const filterStatus = document.getElementById('filterStatus');
+    const activeFiltersContainer = document.getElementById('activeFilters');
+    
+    // Initialize counts
+    totalCountElement.textContent = propertyItems.length;
+    visibleCountElement.textContent = propertyItems.length;
+    
+    // Get current URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Initialize filter values from URL
+    const searchInput = document.getElementById('searchInput');
+    const minPriceInput = document.getElementById('minPrice');
+    const maxPriceInput = document.getElementById('maxPrice');
+    const roomTypeSelect = document.getElementById('roomType');
+    const sortSelect = document.getElementById('sortSelect');
+    
+    // Set initial values from URL
+    if (urlParams.has('search')) searchInput.value = urlParams.get('search');
+    if (urlParams.has('min_price')) minPriceInput.value = urlParams.get('min_price');
+    if (urlParams.has('max_price')) maxPriceInput.value = urlParams.get('max_price');
+    if (urlParams.has('room_type')) roomTypeSelect.value = urlParams.get('room_type');
+    if (urlParams.has('sort')) sortSelect.value = urlParams.get('sort');
+    
+    // Apply filters from URL on page load
+    applyFilters();
+    
+    // Filter function
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const minPrice = parseFloat(minPriceInput.value) || 0;
+        const maxPrice = parseFloat(maxPriceInput.value) || Infinity;
+        const roomType = roomTypeSelect.value;
+        const sortBy = sortSelect.value;
+        
+        let visibleCount = 0;
+        let activeFilters = [];
+        
+        // Check if any filters are active
+        if (searchTerm) activeFilters.push(`Search: "${searchTerm}"`);
+        if (minPrice > 0) activeFilters.push(`Min: R${minPrice}`);
+        if (maxPrice < Infinity) activeFilters.push(`Max: R${maxPrice}`);
+        if (roomType) activeFilters.push(`Type: ${roomType.charAt(0).toUpperCase() + roomType.slice(1)}`);
+        
+        // Show/hide filter status
+        if (activeFilters.length > 0) {
+            filterStatus.style.display = 'flex';
+            activeFiltersContainer.innerHTML = '';
+            activeFilters.forEach(filter => {
+                const badge = document.createElement('span');
+                badge.className = 'filter-badge';
+                badge.innerHTML = `
+                    ${filter}
+                    <button class="remove-filter" onclick="removeFilter('${filter.split(':')[0].toLowerCase().trim()}')">
+                        <i class="bi bi-x"></i>
+                    </button>
+                `;
+                activeFiltersContainer.appendChild(badge);
+            });
+        } else {
+            filterStatus.style.display = 'none';
+        }
+        
+        // Filter properties
+        propertyItems.forEach(item => {
+            const price = parseFloat(item.dataset.price);
+            const location = item.dataset.location;
+            const title = item.dataset.title;
+            const type = item.dataset.roomType;
+            
+            // Apply filters
+            let matches = true;
+            
+            // Search filter
+            if (searchTerm) {
+                matches = matches && (location.includes(searchTerm) || title.includes(searchTerm));
+            }
+            
+            // Price filter
+            matches = matches && (price >= minPrice && price <= maxPrice);
+            
+            // Room type filter
+            if (roomType) {
+                matches = matches && (type === roomType);
+            }
+            
+            // Show/hide property
+            if (matches) {
+                item.classList.remove('hidden', 'filtered-out');
+                visibleCount++;
+            } else {
+                item.classList.add('filtered-out');
+                setTimeout(() => item.classList.add('hidden'), 300);
+            }
+        });
+        
+        // Sort properties
+        sortProperties(sortBy);
+        
+        // Update visible count
+        visibleCountElement.textContent = visibleCount;
+        
+        // Update URL without reloading
+        updateURL();
+        
+        // Show empty state if no properties match
+        const emptyState = document.querySelector('.empty-state');
+        if (visibleCount === 0 && propertyItems.length > 0) {
+            if (!emptyState) {
+                propertiesContainer.innerHTML = `
+                    <div class="col-12">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <h3>No matching properties found</h3>
+                            <p>Try adjusting your search criteria</p>
+                            <button id="resetView" class="btn btn-primary-orange">
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset Filters
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        } else if (emptyState && propertyItems.length === 0) {
+            // Original empty state remains
+        }
+    }
+    
+    // Sort function
+    function sortProperties(sortBy) {
+        const container = propertiesContainer;
+        const items = Array.from(propertyItems).filter(item => !item.classList.contains('hidden'));
+        
+        items.sort((a, b) => {
+            switch(sortBy) {
+                case 'price_low':
+                    return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+                case 'price_high':
+                    return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                case 'rating':
+                    return parseFloat(b.dataset.rating) - parseFloat(a.dataset.rating);
+                case 'availability':
+                    return parseFloat(b.dataset.available) - parseFloat(a.dataset.available);
+                default:
+                    return 0;
+            }
+        });
+        
+        // Reorder items in DOM
+        items.forEach(item => container.appendChild(item));
+    }
+    
+    // Update URL function
+    function updateURL() {
+        const params = new URLSearchParams();
+        
+        if (searchInput.value) params.set('search', searchInput.value);
+        if (minPriceInput.value) params.set('min_price', minPriceInput.value);
+        if (maxPriceInput.value) params.set('max_price', maxPriceInput.value);
+        if (roomTypeSelect.value) params.set('room_type', roomTypeSelect.value);
+        if (sortSelect.value !== 'recommended') params.set('sort', sortSelect.value);
+        
+        const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+        window.history.replaceState({}, '', newUrl);
+    }
+    
+    // Remove filter function
+    window.removeFilter = function(filterType) {
+        switch(filterType) {
+            case 'search':
+                searchInput.value = '';
+                break;
+            case 'min':
+                minPriceInput.value = '';
+                break;
+            case 'max':
+                maxPriceInput.value = '';
+                break;
+            case 'type':
+                roomTypeSelect.value = '';
+                break;
+        }
+        applyFilters();
+    };
+    
+    // Event listeners
+    document.getElementById('applyFilters').addEventListener('click', applyFilters);
+    document.getElementById('clearFilters').addEventListener('click', function() {
+        searchInput.value = '';
+        minPriceInput.value = '';
+        maxPriceInput.value = '';
+        roomTypeSelect.value = '';
+        sortSelect.value = 'recommended';
+        applyFilters();
+    });
+    
+    // Reset view button (for empty state)
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'resetView' || e.target.closest('#resetView')) {
+            searchInput.value = '';
+            minPriceInput.value = '';
+            maxPriceInput.value = '';
+            roomTypeSelect.value = '';
+            sortSelect.value = 'recommended';
+            applyFilters();
+        }
+    });
+    
+    // Enter key in search input
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyFilters();
+        }
+    });
+    
+    // Real-time filtering for search
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applyFilters, 300);
+    });
+    
+    // Real-time filtering for price
+    minPriceInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applyFilters, 500);
+    });
+    
+    maxPriceInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applyFilters, 500);
+    });
+    
+    // Room type change
+    roomTypeSelect.addEventListener('change', applyFilters);
+    
+    // Sort change
+    sortSelect.addEventListener('change', applyFilters);
+    
+    // Toggle favorite function
+    window.toggleFavorite = async function(accId, btn) {
+        if (!{{ 'true' if current_user.is_authenticated else 'false' }}) {
+            window.location.href = "{{ url_for('login') }}";
+            return;
+        }
+
+        try {
+            const response = await fetch(`/favorite/toggle/${accId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            const data = await response.json();
+            const icon = btn.querySelector('i');
+            
+            if (data.status === 'added') {
+                btn.classList.add('active');
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill');
+                btn.title = 'Remove from favorites';
+                showToast('Added to favorites!', 'success');
+            } else {
+                btn.classList.remove('active');
+                icon.classList.remove('bi-heart-fill');
+                icon.classList.add('bi-heart');
+                btn.title = 'Add to favorites';
+                showToast('Removed from favorites', 'info');
+            }
+            
+            // Animation
+            btn.style.transform = 'scale(1.2) rotate(5deg)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 200);
+            
+        } catch (error) {
+            showToast('Error updating favorites', 'danger');
+        }
+    };
+});
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="bi ${type === 'success' ? 'bi-check-circle' : type === 'danger' ? 'bi-exclamation-circle' : 'bi-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Add CSS for toast if not already present
+    if (!document.querySelector('#toast-styles')) {
+        const style = document.createElement('style');
+        style.id = 'toast-styles';
+        style.textContent = `
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border-radius: 12px;
+                padding: 1rem 1.5rem;
+                box-shadow: var(--shadow-xl);
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                z-index: 9999;
+                transform: translateX(100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+                border-left: 4px solid var(--primary-orange);
+            }
+            .toast-success { border-left-color: #10B981; }
+            .toast-danger { border-left-color: #EF4444; }
+            .toast-info { border-left-color: var(--primary-orange); }
+            .toast.show {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            .toast-content {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .toast-content i {
+                font-size: 1.25rem;
+            }
+            .toast-success .toast-content i { color: #10B981; }
+            .toast-danger .toast-content i { color: #EF4444; }
+            .toast-info .toast-content i { color: var(--primary-orange); }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

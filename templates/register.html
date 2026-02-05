@@ -1,0 +1,585 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account - CampusStay{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-section {
+        min-height: calc(100vh - 76px);
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+        background: linear-gradient(135deg, #FFF5F2 0%, #FFFFFF 50%, #F0F7FF 100%);
+    }
+
+    .auth-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        display: flex;
+        min-height: 700px;
+    }
+
+    .auth-visual {
+        flex: 1;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-visual::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+    }
+
+    .visual-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .visual-logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .visual-icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .visual-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    .visual-text {
+        font-size: 1.125rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+
+    .visual-features {
+        margin-top: 3rem;
+    }
+
+    .visual-feature {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .feature-check {
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+    }
+
+    .feature-text {
+        font-weight: 600;
+    }
+
+    .visual-footer {
+        position: relative;
+        z-index: 1;
+        font-size: 0.875rem;
+        opacity: 0.8;
+    }
+
+    .auth-form-wrapper {
+        flex: 1;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        max-height: 800px;
+    }
+
+    .form-header {
+        margin-bottom: 2rem;
+    }
+
+    .form-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-subtitle {
+        color: var(--gray-text);
+        font-size: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .form-label .required {
+        color: var(--primary-orange);
+    }
+
+    .input-group {
+        position: relative;
+    }
+
+    .form-control {
+        border: 2px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+        width: 100%;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-orange);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+        outline: none;
+    }
+
+    .form-control.is-invalid {
+        border-color: #EF4444;
+        background-image: none;
+    }
+
+    .input-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-text);
+        font-size: 1.125rem;
+    }
+
+    .form-control:focus + .input-icon {
+        color: var(--primary-orange);
+    }
+
+    .invalid-feedback {
+        color: #EF4444;
+        font-size: 0.875rem;
+        margin-top: 0.375rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .password-strength {
+        margin-top: 0.5rem;
+        height: 4px;
+        background: #E5E7EB;
+        border-radius: 2px;
+        overflow: hidden;
+        display: none;
+    }
+
+    .password-strength.show {
+        display: block;
+    }
+
+    .strength-bar {
+        height: 100%;
+        width: 0;
+        transition: all 0.3s ease;
+        border-radius: 2px;
+    }
+
+    .strength-weak { background: #EF4444; width: 33%; }
+    .strength-medium { background: #F59E0B; width: 66%; }
+    .strength-strong { background: #10B981; width: 100%; }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
+        border: none;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .auth-footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #E5E7EB;
+    }
+
+    .auth-footer p {
+        color: var(--gray-text);
+        margin: 0;
+    }
+
+    .auth-footer a {
+        color: var(--primary-orange);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .auth-footer a:hover {
+        color: var(--primary-orange-dark);
+    }
+
+    .security-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: var(--gray-text);
+        font-size: 0.875rem;
+        margin-top: 1.5rem;
+    }
+
+    /* Two Column Form Layout for Desktop */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    @media (max-width: 991px) {
+        .auth-card {
+            flex-direction: column;
+        }
+
+        .auth-visual {
+            padding: 2rem;
+            min-height: 300px;
+        }
+
+        .visual-title {
+            font-size: 2rem;
+        }
+
+        .auth-form-wrapper {
+            padding: 2rem;
+            max-height: none;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .auth-section {
+            padding: 0;
+            background: white;
+        }
+
+        .auth-card {
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .auth-visual {
+            display: none;
+        }
+
+        .auth-form-wrapper {
+            padding: 1.5rem;
+        }
+
+        .form-title {
+            font-size: 1.75rem;
+        }
+    }
+
+    /* Animation */
+    .fade-in {
+        animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="container auth-container">
+        <div class="auth-card fade-in">
+            <!-- Visual Side -->
+            <div class="auth-visual d-none d-lg-flex">
+                <div class="visual-content">
+                    <div class="visual-logo">
+                        <div class="visual-icon">
+                            <i class="bi bi-house-door-fill"></i>
+                        </div>
+                        CampusStay
+                    </div>
+                    <h2 class="visual-title">Start Your Student Journey</h2>
+                    <p class="visual-text">Join thousands of students finding their perfect accommodation with CampusStay.</p>
+                    
+                    <div class="visual-features">
+                        <div class="visual-feature">
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <span class="feature-text">Verified Properties</span>
+                        </div>
+                        <div class="visual-feature">
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <span class="feature-text">Secure Payments</span>
+                        </div>
+                        <div class="visual-feature">
+                            <div class="feature-check">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+                            <span class="feature-text">24/7 Support</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="visual-footer">
+                    &copy; 2024 CampusStay. All rights reserved.
+                </div>
+            </div>
+
+            <!-- Form Side -->
+            <div class="auth-form-wrapper">
+                <div class="form-header">
+                    <h1 class="form-title">Create Account</h1>
+                    <p class="form-subtitle">Fill in your details to get started with CampusStay</p>
+                </div>
+
+                <form method="POST" action="" id="registerForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.full_name.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.full_name(class="form-control", placeholder="Tsonga Prince") }}
+                                <i class="bi bi-person input-icon"></i>
+                            </div>
+                            {% if form.full_name.errors %}
+                                <div class="invalid-feedback">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.full_name.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.email.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.email(class="form-control", placeholder="john@university.ac.za") }}
+                                <i class="bi bi-envelope input-icon"></i>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.email.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.student_number.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.student_number(class="form-control", placeholder="12345678") }}
+                                <i class="bi bi-mortarboard input-icon"></i>
+                            </div>
+                            {% if form.student_number.errors %}
+                                <div class="invalid-feedback">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.student_number.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.id_number.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.id_number(class="form-control", placeholder="13 digits") }}
+                                <i class="bi bi-credit-card input-icon"></i>
+                            </div>
+                            {% if form.id_number.errors %}
+                                <div class="invalid-feedback">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.id_number.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.phone.label(class="form-label") }}
+                        <div class="input-group">
+                            {{ form.phone(class="form-control", placeholder="082 123 4567") }}
+                            <i class="bi bi-phone input-icon"></i>
+                        </div>
+                        {% if form.phone.errors %}
+                            <div class="invalid-feedback">
+                                <i class="bi bi-exclamation-circle"></i>
+                                {{ form.phone.errors[0] }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ form.password.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.password(class="form-control", id="password", placeholder="••••••••") }}
+                                <i class="bi bi-lock input-icon"></i>
+                            </div>
+                            <div class="password-strength" id="strengthBar">
+                                <div class="strength-bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            {{ form.confirm_password.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.confirm_password(class="form-control", placeholder="••••••••") }}
+                                <i class="bi bi-lock-fill input-icon"></i>
+                            </div>
+                            {% if form.confirm_password.errors %}
+                                <div class="invalid-feedback">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    {{ form.confirm_password.errors[0] }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-person-plus"></i>
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Sign in here</a></p>
+                </div>
+
+                <div class="security-badge">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Your information is secure and encrypted</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Password strength indicator
+    const passwordInput = document.getElementById('password');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthIndicator = strengthBar.querySelector('.strength-bar');
+
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        
+        if (password.length > 0) {
+            strengthBar.classList.add('show');
+            
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            strengthIndicator.className = 'strength-bar';
+            
+            if (strength <= 1) {
+                strengthIndicator.classList.add('strength-weak');
+            } else if (strength === 2) {
+                strengthIndicator.classList.add('strength-medium');
+            } else {
+                strengthIndicator.classList.add('strength-strong');
+            }
+        } else {
+            strengthBar.classList.remove('show');
+        }
+    });
+
+    // Form validation feedback
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value && !this.classList.contains('is-invalid')) {
+                this.style.borderColor = '#10B981';
+            }
+        });
+    });
+</script>
+{% endblock %}
