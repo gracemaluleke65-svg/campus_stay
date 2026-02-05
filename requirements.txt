@@ -1,13 +1,13 @@
-Flask==3.0.0
-Flask-SQLAlchemy==3.1.1
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
 Flask-Login==0.6.3
-Flask-WTF==1.2.1
-WTForms==3.1.1
-Werkzeug==3.0.1
-Pillow==10.2.0  # CHANGED FROM 10.1.0 to 10.2.0
+Flask-WTF==1.1.1
+WTForms==3.0.1
+Werkzeug==2.3.7
+Pillow==10.0.0  # CHANGED FROM 10.2.0 TO 10.0.0
 stripe==7.8.0
 email-validator==2.1.0
 psycopg2-binary==2.9.9
 gunicorn==21.2.0
 python-dotenv==1.0.0
-sqlalchemy==2.0.23
+sqlalchemy==2.0.19
