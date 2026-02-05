@@ -14,8 +14,8 @@ from config import Config
 from models import db, User, Accommodation, Booking, Review, Favorite
 from forms import RegistrationForm, LoginForm, AccommodationForm, BookingForm, ReviewForm, SearchForm
 
-# Initialize Flask app
-app = Flask(__name__)
+# Initialize Flask app - Updated for Flask 3.x
+app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # Load configuration
 app.config.from_object(Config)
