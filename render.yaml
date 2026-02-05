@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     branch: main
-    pythonVersion: "3.11.9"  # MUST HAVE THIS LINE
+    pythonVersion: "3.11.9"
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
