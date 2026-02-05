@@ -6,8 +6,17 @@ services:
     branch: main
     pythonVersion: "3.13.2"
     buildCommand: "pip install --upgrade pip setuptools wheel && pip install -r requirements.txt"
-    startCommand: gunicorn app:app
+    startCommand: |
+      python -c "
+from app import app, db, seed_admin
+with app.app_context():
+    db.create_all()
+    seed_admin()
+print('Database initialized')
+      " && gunicorn app:app
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.2"
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL

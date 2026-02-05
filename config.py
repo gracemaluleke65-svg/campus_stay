@@ -15,13 +15,16 @@ class Config:
     SQLALCHEMY_DATABASE_URI = DATABASE_URL or 'sqlite:///accommodation.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Connection pooling for PostgreSQL
+    # Connection pooling for PostgreSQL - Updated for SQLAlchemy 2.0+
     if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith('postgresql://'):
         SQLALCHEMY_ENGINE_OPTIONS = {
             'pool_size': 10,
             'pool_recycle': 300,
             'pool_pre_ping': True,
             'max_overflow': 20,
+            'connect_args': {
+                'sslmode': 'require'  # Required for Render PostgreSQL
+            }
         }
     
     # Upload folder for accommodation images

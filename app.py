@@ -14,8 +14,8 @@ from config import Config
 from models import db, User, Accommodation, Booking, Review, Favorite
 from forms import RegistrationForm, LoginForm, AccommodationForm, BookingForm, ReviewForm, SearchForm
 
-# Initialize Flask app - Updated for Flask 3.x
-app = Flask(__name__, template_folder='templates', static_folder='static')
+# Initialize Flask app
+app = Flask(__name__)
 
 # Load configuration
 app.config.from_object(Config)
@@ -78,20 +78,24 @@ def allowed_file(filename):
 
 def seed_admin():
     with app.app_context():
-        admin = User.query.filter_by(email=app.config['ADMIN_EMAIL']).first()
-        if not admin:
-            admin = User(
-                full_name='System Admin',
-                email=app.config['ADMIN_EMAIL'],
-                student_number='00000000',
-                id_number='0000000000000',
-                phone='0000000000',
-                is_admin=True
-            )
-            admin.set_password(app.config['ADMIN_PASSWORD'])
-            db.session.add(admin)
-            db.session.commit()
-            app.logger.info('Admin user created successfully')
+        try:
+            admin = User.query.filter_by(email=app.config['ADMIN_EMAIL']).first()
+            if not admin:
+                admin = User(
+                    full_name='System Admin',
+                    email=app.config['ADMIN_EMAIL'],
+                    student_number='00000000',
+                    id_number='0000000000000',
+                    phone='0000000000',
+                    is_admin=True
+                )
+                admin.set_password(app.config['ADMIN_PASSWORD'])
+                db.session.add(admin)
+                db.session.commit()
+                app.logger.info('Admin user created successfully')
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f'Error creating admin: {e}')
 
 @app.errorhandler(404)
 def not_found_error(error):
@@ -102,7 +106,11 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     app.logger.error(f'500 Error: {error}\n{traceback.format_exc()}')
-    return render_template('500.html'), 500
+    # Return a simple error message if template is missing
+    try:
+        return render_template('500.html'), 500
+    except:
+        return "<h1>Internal Server Error</h1><p>Please check the application logs.</p>", 500
 
 @app.route('/')
 def index():
@@ -711,15 +719,19 @@ def my_bookings():
         flash('Error loading your bookings.', 'danger')
         return redirect(url_for('index'))
 
-# Create database tables and seed admin
-with app.app_context():
-    try:
-        db.create_all()
-        seed_admin()
-        app.logger.info('Database initialized successfully')
-    except Exception as e:
-        app.logger.error(f'Database initialization error: {e}')
+# Remove the context block at the bottom - we'll use gunicorn to initialize
+# The database will be initialized when the app starts via the before_first_request handler
+# or manually run db.create_all() in a separate migration script
 
 if __name__ == '__main__':
+    # For local development only
+    with app.app_context():
+        try:
+            db.create_all()
+            seed_admin()
+            app.logger.info('Database initialized successfully')
+        except Exception as e:
+            app.logger.error(f'Database initialization error: {e}')
+    
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=app.config['DEBUG'])
